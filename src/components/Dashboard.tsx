@@ -276,7 +276,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Pemasukan</p>
-              <p className="text-2xl font-bold text-green-600">Rp 4.5M</p>
+              <p className="text-2xl font-bold text-green-600">Rp 3.0M</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
               <DollarSign size={24} className="text-green-600" />

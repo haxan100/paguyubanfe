@@ -28,15 +28,21 @@ export interface Payment {
   verifiedBy?: string;
 }
 
+export interface Settings {
+  complaintMenuEnabled: boolean;
+}
+
 interface DataContextType {
   complaints: Complaint[];
   payments: Payment[];
+  settings: Settings;
   addComplaint: (complaint: Omit<Complaint, 'id' | 'createdAt'>) => void;
   updateComplaintStatus: (id: string, status: Complaint['status']) => void;
   uploadPaymentProof: (userId: string, year: number, month: number, proofPhoto: string) => void;
   verifyPayment: (paymentId: string, verifiedBy: string) => void;
   getPaymentsByUser: (userId: string) => Payment[];
   getPaymentsByBlok: (blok: string) => Payment[];
+  updateSettings: (newSettings: Partial<Settings>) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -64,7 +70,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       userBlok: 'A',
       year: 2024,
       month: 1,
-      amount: 150000,
+      amount: 100000,
       status: 'unpaid',
     },
     {
@@ -74,7 +80,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       userBlok: 'A',
       year: 2024,
       month: 2,
-      amount: 150000,
+      amount: 100000,
       status: 'verified',
       proofPhoto: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400',
       uploadedAt: new Date('2024-02-01'),
@@ -88,12 +94,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       userBlok: 'B',
       year: 2024,
       month: 1,
-      amount: 150000,
+      amount: 100000,
       status: 'pending',
       proofPhoto: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400',
       uploadedAt: new Date('2024-01-30'),
     },
   ]);
+
+  const [settings, setSettings] = useState<Settings>({
+    complaintMenuEnabled: true,
+  });
 
   const addComplaint = (complaint: Omit<Complaint, 'id' | 'createdAt'>) => {
     const newComplaint: Complaint = {
@@ -150,17 +160,23 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     return payments.filter(payment => payment.userBlok === blok);
   };
 
+  const updateSettings = (newSettings: Partial<Settings>) => {
+    setSettings(prev => ({ ...prev, ...newSettings }));
+  };
+
   return (
     <DataContext.Provider
       value={{
         complaints,
         payments,
+        settings,
         addComplaint,
         updateComplaintStatus,
         uploadPaymentProof,
         verifyPayment,
         getPaymentsByUser,
         getPaymentsByBlok,
+        updateSettings,
       }}
     >
       {children}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useData } from '../contexts/DataContext';
 import { 
   Home, 
   MessageCircle, 
@@ -19,17 +20,19 @@ interface LayoutProps {
 
 export default function Layout({ children, currentPage, onPageChange }: LayoutProps) {
   const { user, logout } = useAuth();
+  const { settings } = useData();
 
   const getMenuItems = () => {
     const baseItems = [{ id: 'dashboard', label: 'Dashboard', icon: Home }];
     
     switch (user?.role) {
       case 'warga':
-        return [
-          ...baseItems,
-          { id: 'complaints', label: 'Aduan', icon: MessageCircle },
-          { id: 'payments', label: 'Pembayaran', icon: CreditCard },
-        ];
+        const wargaItems = [...baseItems];
+        if (settings.complaintMenuEnabled) {
+          wargaItems.push({ id: 'complaints', label: 'Aduan', icon: MessageCircle });
+        }
+        wargaItems.push({ id: 'payments', label: 'Pembayaran', icon: CreditCard });
+        return wargaItems;
       case 'koordinator':
         return [
           ...baseItems,
@@ -37,19 +40,25 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
           { id: 'residents', label: 'Data Warga', icon: Users },
         ];
       case 'admin':
-        return [
-          ...baseItems,
-          { id: 'complaints', label: 'Kelola Aduan', icon: MessageCircle },
+        const adminItems = [...baseItems];
+        if (settings.complaintMenuEnabled) {
+          adminItems.push({ id: 'complaints', label: 'Kelola Aduan', icon: MessageCircle });
+        }
+        adminItems.push(
           { id: 'payments-admin', label: 'Data Pembayaran', icon: CreditCard },
-          { id: 'users', label: 'Kelola User', icon: Users },
-        ];
+          { id: 'users', label: 'Kelola User', icon: Users }
+        );
+        return adminItems;
       case 'ketua':
-        return [
-          ...baseItems,
-          { id: 'reports', label: 'Laporan', icon: MessageCircle },
+        const ketuaItems = [...baseItems];
+        if (settings.complaintMenuEnabled) {
+          ketuaItems.push({ id: 'reports', label: 'Laporan', icon: MessageCircle });
+        }
+        ketuaItems.push(
           { id: 'finance', label: 'Keuangan', icon: CreditCard },
-          { id: 'management', label: 'Manajemen', icon: Settings },
-        ];
+          { id: 'management', label: 'Manajemen', icon: Settings }
+        );
+        return ketuaItems;
       default:
         return baseItems;
     }

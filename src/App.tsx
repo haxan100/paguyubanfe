@@ -10,6 +10,7 @@ import PaymentVerification from './components/PaymentVerification';
 import UserManagement from './components/UserManagement';
 import ResidentManagement from './components/ResidentManagement';
 import Reports from './components/Reports';
+import Settings from './components/Settings';
 
 function AppContent() {
   const { user } = useAuth();
@@ -40,7 +41,7 @@ function AppContent() {
       case 'finance':
         return <Reports />;
       case 'management':
-        return <UserManagement />;
+        return <Settings />;
       default:
         return <Dashboard />;
     }

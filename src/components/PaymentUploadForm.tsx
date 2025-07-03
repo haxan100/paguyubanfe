@@ -146,7 +146,7 @@ export default function PaymentUploadForm({ onClose }: PaymentUploadFormProps) {
               <p>Bank: BCA</p>
               <p>No. Rekening: 123-456-7890</p>
               <p>Atas Nama: Pengurus Kompleks</p>
-              <p>Jumlah: Rp 150.000</p>
+              <p>Jumlah: Rp 100.000</p>
             </div>
           </div>
 

@@ -131,7 +131,7 @@ export default function Reports() {
                 const monthPayments = payments.filter(p => 
                   p.month === month && p.year === currentYear && p.status === 'verified'
                 );
-                const target = 150000 * 120; // 150k per unit, 120 units
+                const target = 100000 * 120; // 100k per unit, 120 units
                 const collected = monthPayments.reduce((sum, p) => sum + p.amount, 0);
                 const percentage = (collected / target) * 100;
                 
