@@ -32,15 +32,12 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
     
     switch (user?.role) {
       case 'warga':
-        const wargaItems = [...baseItems];
-        if (settings.complaintMenuEnabled) {
-          wargaItems.push({ id: 'complaints', label: 'Aduan', icon: MessageCircle });
-        }
-        wargaItems.push(
+        return [
+          ...baseItems,
+          { id: 'aduan-saya', label: 'Aduan Saya', icon: MessageCircle },
           { id: 'payments', label: 'Pembayaran', icon: CreditCard },
           { id: 'documents', label: 'Dokumen', icon: FileText }
-        );
-        return wargaItems;
+        ];
       case 'koordinator':
         return [
           ...baseItems,
@@ -94,8 +91,8 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
                 <User size={20} className="text-white" />
               </div>
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">{user?.name}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
+                <p className="font-medium text-gray-900 dark:text-white">{user?.nama}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{user?.jenis}</p>
                 {user?.blok && (
                   <p className="text-xs text-blue-600 dark:text-blue-400">Blok {user.blok}</p>
                 )}

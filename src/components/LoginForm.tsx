@@ -4,8 +4,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { Building, User, Lock, LogIn, Sun, Moon } from 'lucide-react';
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('warga1@example.com');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('warga@paguyuban.com');
+  const [password, setPassword] = useState('123456');
   const [error, setError] = useState('');
   const { login, isLoading } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
@@ -21,10 +21,10 @@ export default function LoginForm() {
   };
 
   const demoAccounts = [
-    { email: 'ketua@example.com', role: 'Ketua' },
-    { email: 'admin@example.com', role: 'Admin' },
-    { email: 'koordinator@example.com', role: 'Koordinator Blok' },
-    { email: 'warga1@example.com', role: 'Warga' },
+    { email: 'ketua@paguyuban.com', role: 'Ketua' },
+    { email: 'admin@paguyuban.com', role: 'Admin' },
+    { email: 'koordinator@paguyuban.com', role: 'Koordinator Blok' },
+    { email: 'warga@paguyuban.com', role: 'Warga' },
   ];
 
   return (
@@ -122,7 +122,7 @@ export default function LoginForm() {
                 key={account.email}
                 onClick={() => {
                   setEmail(account.email);
-                  setPassword('password');
+                  setPassword('123456');
                 }}
                 className="w-full text-left p-3 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
@@ -137,7 +137,7 @@ export default function LoginForm() {
             ))}
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
-            Password untuk semua akun demo: <span className="font-mono">password</span>
+            Password untuk semua akun demo: <span className="font-mono">123456</span>
           </p>
         </div>
       </div>

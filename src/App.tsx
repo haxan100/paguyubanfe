@@ -14,6 +14,7 @@ import Reports from './components/Reports';
 import Settings from './components/Settings';
 import DocumentList from './components/DocumentList';
 import DocumentManagement from './components/DocumentManagement';
+import AduanSaya from './components/AduanSaya';
 
 function AppContent() {
   const { user } = useAuth();
@@ -27,6 +28,8 @@ function AppContent() {
     switch (currentPage) {
       case 'dashboard':
         return <Dashboard />;
+      case 'aduan-saya':
+        return <AduanSaya />;
       case 'complaints':
         return <ComplaintList />;
       case 'payments':

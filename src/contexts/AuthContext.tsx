@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type UserRole = 'ketua' | 'admin' | 'koordinator' | 'warga';
+export type UserRole = 'ketua' | 'admin' | 'koordinator_perblok' | 'warga';
 
 export interface User {
   id: string;
-  name: string;
+  nama: string;
   email: string;
-  role: UserRole;
-  blok?: string; // For koordinator and warga
+  jenis: UserRole;
+  role: UserRole; // For compatibility
+  blok?: string;
+  no_hp?: string;
 }
 
 interface AuthContextType {
@@ -19,21 +21,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demo
-const mockUsers: User[] = [
-  { id: '1', name: 'Budi Santoso', email: 'ketua@example.com', role: 'ketua' },
-  { id: '2', name: 'Siti Admin', email: 'admin@example.com', role: 'admin' },
-  { id: '3', name: 'Andi Koordinator', email: 'koordinator@example.com', role: 'koordinator', blok: 'A' },
-  { id: '4', name: 'Warga 1', email: 'warga1@example.com', role: 'warga', blok: 'A' },
-  { id: '5', name: 'Warga 2', email: 'warga2@example.com', role: 'warga', blok: 'B' },
-];
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in (from localStorage)
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -44,15 +36,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const foundUser = mockUsers.find(u => u.email === email);
-    if (foundUser && password === 'password') {
-      setUser(foundUser);
-      localStorage.setItem('user', JSON.stringify(foundUser));
-      setIsLoading(false);
-      return true;
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        const userData = {
+          ...data.user,
+          role: data.user.jenis // Map jenis to role for compatibility
+        };
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        setIsLoading(false);
+        return true;
+      }
+    } catch (error) {
+      console.error('Login error:', error);
     }
     
     setIsLoading(false);

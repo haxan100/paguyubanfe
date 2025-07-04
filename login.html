@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Paguyuban</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="loginForm">
+        <h2>Login</h2>
+        <form id="login">
+            <input type="email" id="email" placeholder="Email" required><br><br>
+            <input type="password" id="password" placeholder="Password" required><br><br>
+            <button type="submit">Login</button>
+        </form>
+        <div id="message"></div>
+    </div>
+
+    <script>
+    $('#login').submit(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: 'login.php',
+            type: 'POST',
+            data: {
+                email: $('#email').val(),
+                password: $('#password').val()
+            },
+            success: function(response) {
+                if(response.status === 'success') {
+                    $('#message').html('<p style="color:green;">Login berhasil!</p>');
+                    window.location.href = 'dashboard.php';
+                } else {
+                    $('#message').html('<p style="color:red;">' + response.message + '</p>');
+                }
+            },
+            error: function() {
+                $('#message').html('<p style="color:red;">Terjadi kesalahan</p>');
+            }
+        });
+    });
+    </script>
+</body>
+</html>

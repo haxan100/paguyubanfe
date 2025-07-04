@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Paguyuban</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="registerForm">
+        <h2>Register</h2>
+        <form id="register">
+            <input type="text" id="nama" placeholder="Nama Lengkap" required><br><br>
+            <input type="email" id="email" placeholder="Email" required><br><br>
+            <input type="text" id="no_hp" placeholder="No HP" required><br><br>
+            <input type="text" id="blok" placeholder="Blok" required><br><br>
+            <select id="jenis" required>
+                <option value="">Pilih Jenis</option>
+                <option value="warga">Warga</option>
+                <option value="ketua">Ketua</option>
+                <option value="admin">Admin</option>
+                <option value="koordinator_perblok">Koordinator Per Blok</option>
+            </select><br><br>
+            <input type="password" id="password" placeholder="Password" required><br><br>
+            <button type="submit">Register</button>
+        </form>
+        <div id="message"></div>
+    </div>
+
+    <script>
+    $('#register').submit(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/api/auth/register',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                nama: $('#nama').val(),
+                email: $('#email').val(),
+                no_hp: $('#no_hp').val(),
+                blok: $('#blok').val(),
+                jenis: $('#jenis').val(),
+                password: $('#password').val()
+            }),
+            success: function(response) {
+                if(response.status === 'success') {
+                    $('#message').html('<p style="color:green;">Register berhasil! Silakan login.</p>');
+                    $('#register')[0].reset();
+                } else {
+                    $('#message').html('<p style="color:red;">' + response.message + '</p>');
+                }
+            },
+            error: function() {
+                $('#message').html('<p style="color:red;">Terjadi kesalahan</p>');
+            }
+        });
+    });
+    </script>
+</body>
+</html>
