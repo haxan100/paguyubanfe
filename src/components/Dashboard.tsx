@@ -59,50 +59,50 @@ export default function Dashboard() {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Pembayaran</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalPayments}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pembayaran</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalPayments}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <CreditCard size={24} className="text-blue-600" />
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                <CreditCard size={24} className="text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Sudah Bayar</p>
-                <p className="text-2xl font-bold text-green-600">{stats.paidPayments}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Sudah Bayar</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.paidPayments}</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <CheckCircle size={24} className="text-green-600" />
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
+                <CheckCircle size={24} className="text-green-600 dark:text-green-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Menunggu Verifikasi</p>
-                <p className="text-2xl font-bold text-orange-600">{stats.pendingPayments}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Menunggu Verifikasi</p>
+                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.pendingPayments}</p>
               </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Clock size={24} className="text-orange-600" />
+              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
+                <Clock size={24} className="text-orange-600 dark:text-orange-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Aduan</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalComplaints}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Aduan</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalComplaints}</p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <MessageCircle size={24} className="text-purple-600" />
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
+                <MessageCircle size={24} className="text-purple-600 dark:text-purple-400" />
               </div>
             </div>
           </div>
@@ -110,23 +110,23 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Payments */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Pembayaran Terbaru</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Pembayaran Terbaru</h3>
             <div className="space-y-3">
               {recentPayments.map((payment) => (
-                <div key={payment.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={payment.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-white">
                       {new Date(0, payment.month - 1).toLocaleString('id-ID', { month: 'long' })} {payment.year}
                     </p>
-                    <p className="text-sm text-gray-600">Rp {payment.amount.toLocaleString('id-ID')}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Rp {payment.amount.toLocaleString('id-ID')}</p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                     payment.status === 'verified' 
-                      ? 'bg-green-100 text-green-800'
+                      ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-400'
                       : payment.status === 'pending'
-                      ? 'bg-orange-100 text-orange-800'
-                      : 'bg-red-100 text-red-800'
+                      ? 'bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-400'
+                      : 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-400'
                   }`}>
                     {payment.status === 'verified' ? 'Terverifikasi' : 
                      payment.status === 'pending' ? 'Pending' : 'Belum Bayar'}
@@ -137,25 +137,25 @@ export default function Dashboard() {
           </div>
 
           {/* Recent Complaints */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Aduan Terbaru</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Aduan Terbaru</h3>
             <div className="space-y-3">
               {recentComplaints.map((complaint) => (
-                <div key={complaint.id} className="p-3 bg-gray-50 rounded-lg">
+                <div key={complaint.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-gray-900">{complaint.title}</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-white">{complaint.title}</h4>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       complaint.status === 'resolved' 
-                        ? 'bg-green-100 text-green-800'
+                        ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-400'
                         : complaint.status === 'in-progress'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-orange-100 text-orange-800'
+                        ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-400'
+                        : 'bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-400'
                     }`}>
                       {complaint.status === 'resolved' ? 'Selesai' : 
                        complaint.status === 'in-progress' ? 'Proses' : 'Pending'}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600">{complaint.description.substring(0, 100)}...</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{complaint.description.substring(0, 100)}...</p>
                 </div>
               ))}
             </div>
@@ -171,38 +171,38 @@ export default function Dashboard() {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Warga</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalResidents}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Warga</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalResidents}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Users size={24} className="text-blue-600" />
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                <Users size={24} className="text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Menunggu Verifikasi</p>
-                <p className="text-2xl font-bold text-orange-600">{stats.pendingPayments}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Menunggu Verifikasi</p>
+                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.pendingPayments}</p>
               </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Clock size={24} className="text-orange-600" />
+              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
+                <Clock size={24} className="text-orange-600 dark:text-orange-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Terverifikasi</p>
-                <p className="text-2xl font-bold text-green-600">{stats.verifiedPayments}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Terverifikasi</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.verifiedPayments}</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <CheckCircle size={24} className="text-green-600" />
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
+                <CheckCircle size={24} className="text-green-600 dark:text-green-400" />
               </div>
             </div>
           </div>
@@ -217,50 +217,50 @@ export default function Dashboard() {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Aduan</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalComplaints}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Aduan</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalComplaints}</p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <MessageCircle size={24} className="text-purple-600" />
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
+                <MessageCircle size={24} className="text-purple-600 dark:text-purple-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Aduan Pending</p>
-                <p className="text-2xl font-bold text-orange-600">{stats.pendingComplaints}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Aduan Pending</p>
+                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.pendingComplaints}</p>
               </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <AlertCircle size={24} className="text-orange-600" />
+              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
+                <AlertCircle size={24} className="text-orange-600 dark:text-orange-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Aduan Selesai</p>
-                <p className="text-2xl font-bold text-green-600">{stats.resolvedComplaints}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Aduan Selesai</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.resolvedComplaints}</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <CheckCircle size={24} className="text-green-600" />
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
+                <CheckCircle size={24} className="text-green-600 dark:text-green-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Pembayaran</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalPayments}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pembayaran</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalPayments}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <CreditCard size={24} className="text-blue-600" />
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                <CreditCard size={24} className="text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </div>
@@ -272,50 +272,50 @@ export default function Dashboard() {
   const renderKetuaDashboard = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Pemasukan</p>
-              <p className="text-2xl font-bold text-green-600">Rp 3.0M</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pemasukan</p>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">Rp 3.0M</p>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <DollarSign size={24} className="text-green-600" />
+            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
+              <DollarSign size={24} className="text-green-600 dark:text-green-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Tingkat Pembayaran</p>
-              <p className="text-2xl font-bold text-blue-600">85%</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Tingkat Pembayaran</p>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">85%</p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <TrendingUp size={24} className="text-blue-600" />
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+              <TrendingUp size={24} className="text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Warga</p>
-              <p className="text-2xl font-bold text-gray-900">120</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Warga</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">120</p>
             </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Users size={24} className="text-purple-600" />
+            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
+              <Users size={24} className="text-purple-600 dark:text-purple-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Aduan Bulan Ini</p>
-              <p className="text-2xl font-bold text-orange-600">12</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Aduan Bulan Ini</p>
+              <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">12</p>
             </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <MessageCircle size={24} className="text-orange-600" />
+            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
+              <MessageCircle size={24} className="text-orange-600 dark:text-orange-400" />
             </div>
           </div>
         </div>
@@ -326,8 +326,8 @@ export default function Dashboard() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
           Selamat datang, {user?.name}! Berikut adalah ringkasan aktivitas Anda.
         </p>
       </div>

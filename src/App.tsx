@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import LoginForm from './components/LoginForm';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
@@ -56,11 +57,13 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <DataProvider>
-        <AppContent />
-      </DataProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <DataProvider>
+          <AppContent />
+        </DataProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
