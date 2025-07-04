@@ -12,7 +12,8 @@ import {
   CheckCircle,
   User,
   Sun,
-  Moon
+  Moon,
+  FileText
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -35,13 +36,17 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
         if (settings.complaintMenuEnabled) {
           wargaItems.push({ id: 'complaints', label: 'Aduan', icon: MessageCircle });
         }
-        wargaItems.push({ id: 'payments', label: 'Pembayaran', icon: CreditCard });
+        wargaItems.push(
+          { id: 'payments', label: 'Pembayaran', icon: CreditCard },
+          { id: 'documents', label: 'Dokumen', icon: FileText }
+        );
         return wargaItems;
       case 'koordinator':
         return [
           ...baseItems,
           { id: 'verify-payments', label: 'Verifikasi Bayar', icon: CheckCircle },
           { id: 'residents', label: 'Data Warga', icon: Users },
+          { id: 'documents', label: 'Dokumen', icon: FileText },
         ];
       case 'admin':
         const adminItems = [...baseItems];
@@ -50,7 +55,8 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
         }
         adminItems.push(
           { id: 'payments-admin', label: 'Data Pembayaran', icon: CreditCard },
-          { id: 'users', label: 'Kelola User', icon: Users }
+          { id: 'users', label: 'Kelola User', icon: Users },
+          { id: 'document-management', label: 'Kelola Dokumen', icon: FileText }
         );
         return adminItems;
       case 'ketua':
@@ -60,6 +66,7 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
         }
         ketuaItems.push(
           { id: 'finance', label: 'Keuangan', icon: CreditCard },
+          { id: 'document-management', label: 'Kelola Dokumen', icon: FileText },
           { id: 'management', label: 'Manajemen', icon: Settings }
         );
         return ketuaItems;

@@ -28,6 +28,17 @@ export interface Payment {
   verifiedBy?: string;
 }
 
+export interface Document {
+  id: string;
+  title: string;
+  fileName: string;
+  fileUrl: string;
+  uploadedBy: string;
+  uploadedAt: Date;
+  description?: string;
+  category: 'announcement' | 'regulation' | 'financial' | 'meeting' | 'other';
+}
+
 export interface Settings {
   complaintMenuEnabled: boolean;
 }
@@ -35,6 +46,7 @@ export interface Settings {
 interface DataContextType {
   complaints: Complaint[];
   payments: Payment[];
+  documents: Document[];
   settings: Settings;
   addComplaint: (complaint: Omit<Complaint, 'id' | 'createdAt'>) => void;
   updateComplaintStatus: (id: string, status: Complaint['status']) => void;
@@ -42,6 +54,8 @@ interface DataContextType {
   verifyPayment: (paymentId: string, verifiedBy: string) => void;
   getPaymentsByUser: (userId: string) => Payment[];
   getPaymentsByBlok: (blok: string) => Payment[];
+  addDocument: (document: Omit<Document, 'id' | 'uploadedAt'>) => void;
+  deleteDocument: (id: string) => void;
   updateSettings: (newSettings: Partial<Settings>) => void;
 }
 
@@ -98,6 +112,39 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       status: 'pending',
       proofPhoto: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400',
       uploadedAt: new Date('2024-01-30'),
+    },
+  ]);
+
+  const [documents, setDocuments] = useState<Document[]>([
+    {
+      id: '1',
+      title: 'Peraturan Tata Tertib Kompleks',
+      fileName: 'tata-tertib-kompleks.pdf',
+      fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      uploadedBy: 'Budi Santoso',
+      uploadedAt: new Date('2024-01-10'),
+      description: 'Peraturan tata tertib yang harus dipatuhi oleh seluruh warga kompleks',
+      category: 'regulation',
+    },
+    {
+      id: '2',
+      title: 'Laporan Keuangan Januari 2024',
+      fileName: 'laporan-keuangan-jan-2024.pdf',
+      fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      uploadedBy: 'Siti Admin',
+      uploadedAt: new Date('2024-02-01'),
+      description: 'Laporan keuangan kompleks untuk bulan Januari 2024',
+      category: 'financial',
+    },
+    {
+      id: '3',
+      title: 'Pengumuman Rapat Bulanan',
+      fileName: 'pengumuman-rapat-feb-2024.pdf',
+      fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      uploadedBy: 'Budi Santoso',
+      uploadedAt: new Date('2024-02-05'),
+      description: 'Pengumuman rapat bulanan yang akan dilaksanakan pada tanggal 15 Februari 2024',
+      category: 'announcement',
     },
   ]);
 
@@ -160,6 +207,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     return payments.filter(payment => payment.userBlok === blok);
   };
 
+  const addDocument = (document: Omit<Document, 'id' | 'uploadedAt'>) => {
+    const newDocument: Document = {
+      ...document,
+      id: Date.now().toString(),
+      uploadedAt: new Date(),
+    };
+    setDocuments(prev => [newDocument, ...prev]);
+  };
+
+  const deleteDocument = (id: string) => {
+    setDocuments(prev => prev.filter(doc => doc.id !== id));
+  };
+
   const updateSettings = (newSettings: Partial<Settings>) => {
     setSettings(prev => ({ ...prev, ...newSettings }));
   };
@@ -169,6 +229,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       value={{
         complaints,
         payments,
+        documents,
         settings,
         addComplaint,
         updateComplaintStatus,
@@ -176,6 +237,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         verifyPayment,
         getPaymentsByUser,
         getPaymentsByBlok,
+        addDocument,
+        deleteDocument,
         updateSettings,
       }}
     >

@@ -12,6 +12,8 @@ import UserManagement from './components/UserManagement';
 import ResidentManagement from './components/ResidentManagement';
 import Reports from './components/Reports';
 import Settings from './components/Settings';
+import DocumentList from './components/DocumentList';
+import DocumentManagement from './components/DocumentManagement';
 
 function AppContent() {
   const { user } = useAuth();
@@ -41,6 +43,10 @@ function AppContent() {
         return <Reports />;
       case 'finance':
         return <Reports />;
+      case 'documents':
+        return <DocumentList />;
+      case 'document-management':
+        return <DocumentManagement />;
       case 'management':
         return <Settings />;
       default:
