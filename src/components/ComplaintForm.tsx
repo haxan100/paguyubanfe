@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { MessageCircle, Camera, Send, X } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 interface ComplaintFormProps {
   onClose: () => void;
@@ -11,11 +12,11 @@ export default function ComplaintForm({ onClose }: ComplaintFormProps) {
   const { user } = useAuth();
   const { addComplaint } = useData();
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: 'maintenance' as const,
+    judul: '',
+    deskripsi: '',
+    kategori: 'infrastruktur' as const,
   });
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [foto, setFoto] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,36 +25,59 @@ export default function ComplaintForm({ onClose }: ComplaintFormProps) {
 
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    addComplaint({
-      ...formData,
-      userId: user.id,
-      userName: user.name,
-      userBlok: user.blok || '',
-      status: 'pending',
-      photos,
-    });
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('user_id', user.id.toString());
+      formDataToSend.append('judul', formData.judul);
+      formDataToSend.append('deskripsi', formData.deskripsi);
+      formDataToSend.append('kategori', formData.kategori);
+      
+      if (foto) {
+        formDataToSend.append('foto', foto);
+      }
 
-    setIsSubmitting(false);
-    onClose();
-  };
+      const response = await fetch('/api/aduan', {
+        method: 'POST',
+        body: formDataToSend
+      });
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      // In a real app, you would upload these files to a server
-      // For demo purposes, we'll use placeholder images
-      const newPhotos = Array.from(files).map((_, index) => 
-        `https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop&crop=center&q=80&auto=format&${index}`
-      );
-      setPhotos(prev => [...prev, ...newPhotos]);
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        await Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Aduan berhasil dibuat',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        
+        setFormData({ judul: '', deskripsi: '', kategori: 'infrastruktur' });
+        setFoto(null);
+        onClose();
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: 'Gagal membuat aduan'
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const removePhoto = (index: number) => {
-    setPhotos(prev => prev.filter((_, i) => i !== index));
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFoto(file);
+    }
+  };
+
+  const removePhoto = () => {
+    setFoto(null);
   };
 
   return (
@@ -78,14 +102,14 @@ export default function ComplaintForm({ onClose }: ComplaintFormProps) {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="judul" className="block text-sm font-medium text-gray-700 mb-2">
               Judul Aduan
             </label>
             <input
-              id="title"
+              id="judul"
               type="text"
-              value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              value={formData.judul}
+              onChange={(e) => setFormData(prev => ({ ...prev, judul: e.target.value }))}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               placeholder="Masukkan judul aduan"
               required
@@ -93,30 +117,30 @@ export default function ComplaintForm({ onClose }: ComplaintFormProps) {
           </div>
 
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="kategori" className="block text-sm font-medium text-gray-700 mb-2">
               Kategori
             </label>
             <select
-              id="category"
-              value={formData.category}
-              onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value as any }))}
+              id="kategori"
+              value={formData.kategori}
+              onChange={(e) => setFormData(prev => ({ ...prev, kategori: e.target.value as any }))}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
             >
-              <option value="maintenance">Pemeliharaan</option>
-              <option value="security">Keamanan</option>
-              <option value="noise">Kebisingan</option>
-              <option value="other">Lainnya</option>
+              <option value="infrastruktur">Infrastruktur</option>
+              <option value="kebersihan">Kebersihan</option>
+              <option value="keamanan">Keamanan</option>
+              <option value="lainnya">Lainnya</option>
             </select>
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="deskripsi" className="block text-sm font-medium text-gray-700 mb-2">
               Deskripsi
             </label>
             <textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              id="deskripsi"
+              value={formData.deskripsi}
+              onChange={(e) => setFormData(prev => ({ ...prev, deskripsi: e.target.value }))}
               rows={4}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
               placeholder="Jelaskan detail aduan Anda"
@@ -143,24 +167,20 @@ export default function ComplaintForm({ onClose }: ComplaintFormProps) {
                 />
               </label>
 
-              {photos.length > 0 && (
-                <div className="grid grid-cols-2 gap-4">
-                  {photos.map((photo, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={photo}
-                        alt={`Upload ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(index)}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  ))}
+              {foto && (
+                <div className="relative inline-block">
+                  <img
+                    src={URL.createObjectURL(foto)}
+                    alt="Preview"
+                    className="w-32 h-24 object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={removePhoto}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                  >
+                    <X size={12} />
+                  </button>
                 </div>
               )}
             </div>

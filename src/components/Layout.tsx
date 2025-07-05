@@ -13,7 +13,8 @@ import {
   User,
   Sun,
   Moon,
-  FileText
+  FileText,
+  Newspaper
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -28,7 +29,10 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
   const { isDarkMode, toggleTheme } = useTheme();
 
   const getMenuItems = () => {
-    const baseItems = [{ id: 'dashboard', label: 'Dashboard', icon: Home }];
+    const baseItems = [
+      { id: 'dashboard', label: 'Dashboard', icon: Home },
+      { id: 'info-warga', label: 'Info Warga', icon: Newspaper }
+    ];
     
     switch (user?.role) {
       case 'warga':

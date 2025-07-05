@@ -5,12 +5,12 @@ import { Plus, Edit, Trash2, Send, Camera, X } from 'lucide-react';
 interface Aduan {
   id: number;
   judul: string;
-  jenis_aduan: string;
+  kategori: string;
   deskripsi: string;
-  foto: string[];
+  foto: string | null;
   status: string;
-  jawaban: string;
-  created_at: string;
+  jawaban: string | null;
+  tanggal_aduan: string;
 }
 
 export default function AduanSaya() {
@@ -20,10 +20,10 @@ export default function AduanSaya() {
   const [editingAduan, setEditingAduan] = useState<Aduan | null>(null);
   const [formData, setFormData] = useState({
     judul: '',
-    jenis_aduan: '',
-    deskripsi: '',
-    foto: [] as string[]
+    kategori: '',
+    deskripsi: ''
   });
+  const [foto, setFoto] = useState<File | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -47,23 +47,54 @@ export default function AduanSaya() {
     e.preventDefault();
     
     try {
-      const url = editingAduan ? `/api/aduan/${editingAduan.id}` : '/api/aduan';
-      const method = editingAduan ? 'PUT' : 'POST';
+      const formDataToSend = new FormData();
       
-      const payload = editingAduan ? formData : { ...formData, user_id: user?.id };
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      
-      const data = await response.json();
-      if (data.status === 'success') {
-        setShowModal(false);
-        setEditingAduan(null);
-        setFormData({ judul: '', jenis_aduan: '', deskripsi: '', foto: [] });
-        fetchAduan();
+      if (editingAduan) {
+        // Update existing aduan
+        formDataToSend.append('judul', formData.judul);
+        formDataToSend.append('deskripsi', formData.deskripsi);
+        formDataToSend.append('kategori', formData.kategori);
+        
+        if (foto) {
+          formDataToSend.append('foto', foto);
+        }
+
+        const response = await fetch(`/api/aduan/${editingAduan.id}`, {
+          method: 'PUT',
+          body: formDataToSend
+        });
+        
+        const data = await response.json();
+        if (data.status === 'success') {
+          setShowModal(false);
+          setEditingAduan(null);
+          setFormData({ judul: '', kategori: '', deskripsi: '' });
+          setFoto(null);
+          fetchAduan();
+        }
+      } else {
+        // Create new aduan
+        formDataToSend.append('user_id', user?.id.toString() || '');
+        formDataToSend.append('judul', formData.judul);
+        formDataToSend.append('deskripsi', formData.deskripsi);
+        formDataToSend.append('kategori', formData.kategori);
+        
+        if (foto) {
+          formDataToSend.append('foto', foto);
+        }
+
+        const response = await fetch('/api/aduan', {
+          method: 'POST',
+          body: formDataToSend
+        });
+        
+        const data = await response.json();
+        if (data.status === 'success') {
+          setShowModal(false);
+          setFormData({ judul: '', kategori: '', deskripsi: '' });
+          setFoto(null);
+          fetchAduan();
+        }
       }
     } catch (error) {
       console.error('Error submitting aduan:', error);
@@ -74,35 +105,22 @@ export default function AduanSaya() {
     setEditingAduan(item);
     setFormData({
       judul: item.judul,
-      jenis_aduan: item.jenis_aduan,
-      deskripsi: item.deskripsi,
-      foto: JSON.parse(item.foto as any) || []
+      kategori: item.kategori,
+      deskripsi: item.deskripsi
     });
+    setFoto(null);
     setShowModal(true);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const result = event.target?.result as string;
-          setFormData(prev => ({
-            ...prev,
-            foto: [...prev.foto, result]
-          }));
-        };
-        reader.readAsDataURL(file);
-      });
+    const file = e.target.files?.[0];
+    if (file) {
+      setFoto(file);
     }
   };
 
-  const removeFoto = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      foto: prev.foto.filter((_, i) => i !== index)
-    }));
+  const removeFoto = () => {
+    setFoto(null);
   };
 
   const handleDelete = async (id: number) => {
@@ -149,12 +167,12 @@ export default function AduanSaya() {
                 required
               />
               <select
-                value={formData.jenis_aduan}
-                onChange={(e) => setFormData({...formData, jenis_aduan: e.target.value})}
+                value={formData.kategori}
+                onChange={(e) => setFormData({...formData, kategori: e.target.value})}
                 className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 required
               >
-                <option value="">Pilih Jenis Aduan</option>
+                <option value="">Pilih Kategori</option>
                 <option value="infrastruktur">Infrastruktur</option>
                 <option value="keamanan">Keamanan</option>
                 <option value="kebersihan">Kebersihan</option>
@@ -175,31 +193,31 @@ export default function AduanSaya() {
                 </label>
                 <input
                   type="file"
-                  multiple
                   accept="image/*"
                   onChange={handleFileUpload}
                   className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
                 
                 {/* Preview Foto */}
-                {formData.foto.length > 0 && (
-                  <div className="mt-2 grid grid-cols-3 gap-2">
-                    {formData.foto.map((foto, index) => (
-                      <div key={index} className="relative">
-                        <img
-                          src={foto}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-20 object-cover rounded border"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeFoto(index)}
-                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
+                {(foto || (editingAduan && editingAduan.foto)) && (
+                  <div className="mt-2">
+                    <div className="relative inline-block">
+                      <img
+                        src={foto ? URL.createObjectURL(foto) : `/assets/uploads/${editingAduan?.foto}`}
+                        alt="Preview"
+                        className="w-20 h-20 object-cover rounded border"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeFoto}
+                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                    {editingAduan && editingAduan.foto && !foto && (
+                      <p className="text-xs text-gray-500 mt-1">Foto saat ini (pilih file baru untuk mengganti)</p>
+                    )}
                   </div>
                 )}
               </div>
@@ -215,7 +233,8 @@ export default function AduanSaya() {
                   onClick={() => {
                     setShowModal(false);
                     setEditingAduan(null);
-                    setFormData({ judul: '', jenis_aduan: '', deskripsi: '', foto: [] });
+                    setFormData({ judul: '', kategori: '', deskripsi: '' });
+                    setFoto(null);
                   }}
                   className="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600"
                 >
@@ -241,24 +260,19 @@ export default function AduanSaya() {
                 {item.status}
               </span>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.jenis_aduan}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.kategori}</p>
             <p className="text-gray-700 dark:text-gray-300 mb-3">{item.deskripsi}</p>
             
             {/* Display Foto */}
-            {JSON.parse(item.foto as any || '[]').length > 0 && (
+            {item.foto && (
               <div className="mb-3">
                 <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">Foto:</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {JSON.parse(item.foto as any).map((foto: string, index: number) => (
-                    <img
-                      key={index}
-                      src={foto}
-                      alt={`Foto ${index + 1}`}
-                      className="w-full h-20 object-cover rounded border cursor-pointer"
-                      onClick={() => window.open(foto, '_blank')}
-                    />
-                  ))}
-                </div>
+                <img
+                  src={`/assets/uploads/${item.foto}`}
+                  alt="Foto aduan"
+                  className="w-32 h-24 object-cover rounded border cursor-pointer"
+                  onClick={() => window.open(`/assets/uploads/${item.foto}`, '_blank')}
+                />
               </div>
             )}
             

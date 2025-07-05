@@ -15,6 +15,7 @@ import Settings from './components/Settings';
 import DocumentList from './components/DocumentList';
 import DocumentManagement from './components/DocumentManagement';
 import AduanSaya from './components/AduanSaya';
+import InfoWarga from './components/InfoWarga';
 
 function AppContent() {
   const { user } = useAuth();
@@ -28,6 +29,8 @@ function AppContent() {
     switch (currentPage) {
       case 'dashboard':
         return <Dashboard />;
+      case 'info-warga':
+        return <InfoWarga />;
       case 'aduan-saya':
         return <AduanSaya />;
       case 'complaints':

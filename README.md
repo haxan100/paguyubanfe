@@ -60,6 +60,7 @@ npm run dev
 npm run build
 npm start
 ```
+lsof -ti:3001 | xargs kill -9
 
 ### Server Only
 ```bash
