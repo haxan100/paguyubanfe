@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Heart, MessageCircle, Send, Camera, X, Trash2, MoreHorizontal } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { apiRequest } from '../utils/api';
 
 interface Post {
   id: number;
@@ -38,7 +39,7 @@ export default function InfoWarga() {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('/api/posts');
+      const response = await apiRequest('/api/posts');
       const result = await response.json();
       if (result.status === 'success') {
         setPosts(result.data);
@@ -54,14 +55,13 @@ export default function InfoWarga() {
 
     try {
       const formData = new FormData();
-      formData.append('user_id', user?.id.toString() || '');
       formData.append('konten', newPost);
       
       if (foto) {
         formData.append('foto', foto);
       }
 
-      const response = await fetch('/api/posts', {
+      const response = await apiRequest('/api/posts', {
         method: 'POST',
         body: formData
       });
@@ -90,10 +90,9 @@ export default function InfoWarga() {
 
   const handleLike = async (postId: number) => {
     try {
-      const response = await fetch(`/api/posts/${postId}/like`, {
+      const response = await apiRequest(`/api/posts/${postId}/like`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: user?.id })
+        headers: { 'Content-Type': 'application/json' }
       });
 
       if (response.ok) {
@@ -107,7 +106,7 @@ export default function InfoWarga() {
   const toggleComments = async (postId: number) => {
     if (!showComments[postId]) {
       try {
-        const response = await fetch(`/api/posts/${postId}/comments`);
+        const response = await apiRequest(`/api/posts/${postId}/comments`);
         const result = await response.json();
         if (result.status === 'success') {
           setComments(prev => ({ ...prev, [postId]: result.data }));
@@ -125,10 +124,10 @@ export default function InfoWarga() {
     if (!comment) return;
 
     try {
-      const response = await fetch(`/api/posts/${postId}/comments`, {
+      const response = await apiRequest(`/api/posts/${postId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: user?.id, komentar: comment })
+        body: JSON.stringify({ komentar: comment })
       });
 
       if (response.ok) {
@@ -155,13 +154,8 @@ export default function InfoWarga() {
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`/api/posts/${postId}`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            user_id: user?.id, 
-            user_role: user?.jenis 
-          })
+        const response = await apiRequest(`/api/posts/${postId}`, {
+          method: 'DELETE'
         });
 
         const data = await response.json();

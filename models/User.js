@@ -32,6 +32,52 @@ class User {
     await connection.end();
     return rows[0];
   }
+
+  static async findAll() {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [rows] = await connection.execute(
+      'SELECT id, nama, email, no_hp, blok, jenis, created_at FROM users ORDER BY created_at DESC'
+    );
+    
+    await connection.end();
+    return rows;
+  }
+
+  static async findByRole(role) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [rows] = await connection.execute(
+      'SELECT id, nama, email, no_hp, blok, jenis, created_at FROM users WHERE jenis = ? ORDER BY created_at DESC',
+      [role]
+    );
+    
+    await connection.end();
+    return rows;
+  }
+
+  static async update(id, userData) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const fields = Object.keys(userData).map(key => `${key} = ?`).join(', ');
+    const values = Object.values(userData);
+    values.push(id);
+    
+    await connection.execute(
+      `UPDATE users SET ${fields} WHERE id = ?`,
+      values
+    );
+    
+    await connection.end();
+  }
+
+  static async delete(id) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    await connection.execute('DELETE FROM users WHERE id = ?', [id]);
+    
+    await connection.end();
+  }
 }
 
 export default User;

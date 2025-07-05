@@ -33,8 +33,9 @@ class PostController {
   
   static async create(req, res) {
     try {
-      const { user_id, konten } = req.body;
+      const { konten } = req.body;
       const foto = req.file ? req.file.filename : null;
+      const user_id = req.user.id;
       
       const result = await Post.create({ user_id, konten, foto });
       res.json({ status: 'success', message: 'Post berhasil dibuat', id: result.insertId });
@@ -57,7 +58,7 @@ class PostController {
   static async toggleLike(req, res) {
     try {
       const { id } = req.params;
-      const { user_id } = req.body;
+      const user_id = req.user.id;
       
       const result = await Post.toggleLike(id, user_id);
       res.json({ status: 'success', data: result });
@@ -81,7 +82,8 @@ class PostController {
   static async addComment(req, res) {
     try {
       const { id } = req.params;
-      const { user_id, komentar } = req.body;
+      const { komentar } = req.body;
+      const user_id = req.user.id;
       
       await Post.addComment({ post_id: id, user_id, komentar });
       res.json({ status: 'success', message: 'Komentar berhasil ditambahkan' });
@@ -105,7 +107,6 @@ class PostController {
   static async delete(req, res) {
     try {
       const { id } = req.params;
-      const { user_id, user_role } = req.body;
       
       // Get post data to check ownership
       const post = await Post.findById(id);
@@ -114,8 +115,8 @@ class PostController {
       }
       
       // Check permission: admin, ketua, koordinator_perblok, or post owner
-      const canDelete = ['admin', 'ketua', 'koordinator_perblok'].includes(user_role) || 
-                       post.user_id === parseInt(user_id);
+      const canDelete = ['admin', 'ketua', 'koordinator_perblok'].includes(req.user.jenis) || 
+                       post.user_id === req.user.id;
       
       if (!canDelete) {
         return res.status(403).json({ status: 'error', message: 'Tidak memiliki izin untuk menghapus post ini' });

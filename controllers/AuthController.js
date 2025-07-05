@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
+import { generateToken } from '../middleware/auth.js';
 
 class AuthController {
   static async login(req, res) {
@@ -16,8 +17,11 @@ class AuthController {
         return res.status(401).json({ status: 'error', message: 'Email atau password salah' });
       }
       
+      const token = generateToken(user);
+      
       res.json({
         status: 'success',
+        token,
         user: {
           id: user.id,
           nama: user.nama,

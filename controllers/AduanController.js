@@ -35,8 +35,9 @@ class AduanController {
   
   static async create(req, res) {
     try {
-      const { user_id, judul, deskripsi, kategori } = req.body;
+      const { judul, deskripsi, kategori } = req.body;
       const foto = req.file ? req.file.filename : null;
+      const user_id = req.user.id;
       
       console.log('Create aduan data:', { user_id, judul, deskripsi, kategori, foto });
       
@@ -66,7 +67,7 @@ class AduanController {
 
   static async getByUser(req, res) {
     try {
-      const { user_id } = req.params;
+      const user_id = req.user.id;
       console.log('Get aduan for user:', user_id);
       const aduan = await Aduan.findByUserId(user_id);
       res.json({ status: 'success', data: aduan });
@@ -81,6 +82,12 @@ class AduanController {
       const { id } = req.params;
       const { judul, deskripsi, kategori } = req.body;
       const foto = req.file ? req.file.filename : null;
+      
+      // Check if user owns this aduan
+      const aduan = await Aduan.findById(id);
+      if (!aduan || aduan.user_id !== req.user.id) {
+        return res.status(403).json({ status: 'error', message: 'Tidak memiliki izin untuk mengubah aduan ini' });
+      }
       
       console.log('Update aduan data:', { id, judul, deskripsi, kategori, foto });
       
@@ -110,24 +117,35 @@ class AduanController {
     try {
       const { id } = req.params;
       
-      // Get aduan data to delete associated files
+      // Get aduan data to check ownership
       const aduan = await Aduan.findById(id);
-      if (aduan) {
-        // Delete photo files if exist
-        if (aduan.foto) {
-          const fotoPath = path.join('public/assets/uploads/', aduan.foto);
-          if (fs.existsSync(fotoPath)) fs.unlinkSync(fotoPath);
-        }
-        if (aduan.foto_jawaban) {
-          const fotoJawabanPath = path.join('public/assets/uploads/', aduan.foto_jawaban);
-          if (fs.existsSync(fotoJawabanPath)) fs.unlinkSync(fotoJawabanPath);
-        }
+      if (!aduan) {
+        return res.status(404).json({ status: 'error', message: 'Aduan tidak ditemukan' });
+      }
+      
+      // Check permission: admin, ketua, koordinator_perblok, or aduan owner
+      const canDelete = ['admin', 'ketua', 'koordinator_perblok'].includes(req.user.jenis) || 
+                       aduan.user_id === req.user.id;
+      
+      if (!canDelete) {
+        return res.status(403).json({ status: 'error', message: 'Tidak memiliki izin untuk menghapus aduan ini' });
+      }
+      
+      // Delete photo files if exist
+      if (aduan.foto) {
+        const fotoPath = path.join('public/assets/uploads/', aduan.foto);
+        if (fs.existsSync(fotoPath)) fs.unlinkSync(fotoPath);
+      }
+      if (aduan.foto_jawaban) {
+        const fotoJawabanPath = path.join('public/assets/uploads/', aduan.foto_jawaban);
+        if (fs.existsSync(fotoJawabanPath)) fs.unlinkSync(fotoJawabanPath);
       }
       
       await Aduan.delete(id);
       res.json({ status: 'success', message: 'Aduan berhasil dihapus' });
     } catch (error) {
-      res.status(500).json({ status: 'error', message: 'Server error' });
+      console.error('Error deleting aduan:', error);
+      res.status(500).json({ status: 'error', message: error.message });
     }
   }
 }

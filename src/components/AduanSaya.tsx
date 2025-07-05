@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Plus, Edit, Trash2, Send, Camera, X } from 'lucide-react';
+import { apiRequest } from '../utils/api';
 
 interface Aduan {
   id: number;
@@ -33,7 +34,7 @@ export default function AduanSaya() {
 
   const fetchAduan = async () => {
     try {
-      const response = await fetch(`/api/aduan/user/${user?.id}`);
+      const response = await apiRequest('/api/aduan/user');
       const data = await response.json();
       if (data.status === 'success') {
         setAduan(data.data);
@@ -59,7 +60,7 @@ export default function AduanSaya() {
           formDataToSend.append('foto', foto);
         }
 
-        const response = await fetch(`/api/aduan/${editingAduan.id}`, {
+        const response = await apiRequest(`/api/aduan/${editingAduan.id}`, {
           method: 'PUT',
           body: formDataToSend
         });
@@ -74,7 +75,6 @@ export default function AduanSaya() {
         }
       } else {
         // Create new aduan
-        formDataToSend.append('user_id', user?.id.toString() || '');
         formDataToSend.append('judul', formData.judul);
         formDataToSend.append('deskripsi', formData.deskripsi);
         formDataToSend.append('kategori', formData.kategori);
@@ -83,7 +83,7 @@ export default function AduanSaya() {
           formDataToSend.append('foto', foto);
         }
 
-        const response = await fetch('/api/aduan', {
+        const response = await apiRequest('/api/aduan', {
           method: 'POST',
           body: formDataToSend
         });
@@ -126,7 +126,7 @@ export default function AduanSaya() {
   const handleDelete = async (id: number) => {
     if (confirm('Yakin ingin menghapus aduan ini?')) {
       try {
-        const response = await fetch(`/api/aduan/${id}`, { method: 'DELETE' });
+        const response = await apiRequest(`/api/aduan/${id}`, { method: 'DELETE' });
         const data = await response.json();
         if (data.status === 'success') {
           fetchAduan();
