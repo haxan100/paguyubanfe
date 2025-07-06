@@ -82,10 +82,10 @@ export const useNotifications = (userRole: string) => {
   useEffect(() => {
     if (userRole === 'ketua') {
       checkNotifications();
-      const interval = setInterval(checkNotifications, 10000); // Check every 10 seconds
+      const interval = setInterval(checkNotifications, 30000); // Check every 30 seconds
       return () => clearInterval(interval);
     }
-  }, [userRole, lastCounts, isFirstLoad]);
+  }, [userRole]); // Remove dependencies that cause infinite loop
 
   return { checkNotifications };
 };

@@ -18,7 +18,21 @@ class PaymentAdminController {
       const { status, catatan } = req.body;
       const admin_id = req.user.id;
       
+      // Get payment data to get user_id
+      const payment = await Payment.findById(id);
       await Payment.updateStatus(id, status, admin_id, catatan);
+      
+      // Emit notification to user
+      const io = req.app.get('io');
+      console.log(`✅ Emitting payment-confirmed to user-${payment.user_id}:`, status);
+      io.to(`user-${payment.user_id}`).emit('payment-confirmed', {
+        type: 'payment-status',
+        message: status === 'dikonfirmasi' ? 'Pembayaran Anda telah dikonfirmasi' : 'Pembayaran Anda ditolak',
+        status: status,
+        catatan: catatan,
+        timestamp: new Date()
+      });
+      
       res.json({ status: 'success', message: 'Status pembayaran berhasil diupdate' });
     } catch (error) {
       console.error('Error confirming payment:', error);

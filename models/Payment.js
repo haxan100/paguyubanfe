@@ -109,6 +109,18 @@ class Payment {
     return rows;
   }
 
+  static async findById(id) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [rows] = await connection.execute(
+      'SELECT * FROM payments WHERE id = ?',
+      [id]
+    );
+    
+    await connection.end();
+    return rows[0];
+  }
+
   static async getTotalIncome() {
     const connection = await mysql.createConnection(dbConfig);
     

@@ -3,6 +3,7 @@ import { Plus, Edit, Trash2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { apiRequest } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
+import PasswordInput from './PasswordInput';
 
 interface UserData {
   id: number;
@@ -307,11 +308,10 @@ export default function KelolaWargaBlok() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 required
               />
-              <input
-                type="password"
-                placeholder={editingUser ? "Password (kosongkan jika tidak diubah)" : "Password"}
+              <PasswordInput
                 value={userForm.password}
-                onChange={(e) => setUserForm({...userForm, password: e.target.value})}
+                onChange={(value) => setUserForm({...userForm, password: value})}
+                placeholder={editingUser ? "Password (kosongkan jika tidak diubah)" : "Password"}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 required={!editingUser}
               />

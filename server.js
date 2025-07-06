@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import AuthController from './controllers/AuthController.js';
 import AduanController from './controllers/AduanController.js';
 import PostController from './controllers/PostController.js';
@@ -14,7 +16,31 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 const PORT = 3001;
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  console.log('🔌 User connected:', socket.id);
+  
+  socket.on('join-room', (userId) => {
+    socket.join(`user-${userId}`);
+    console.log(`👤 User ${userId} joined room user-${userId}`);
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('❌ User disconnected:', socket.id);
+  });
+});
+
+// Make io available to controllers
+app.set('io', io);
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -75,6 +101,6 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

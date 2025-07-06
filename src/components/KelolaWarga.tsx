@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { apiRequest } from '../utils/api';
+import PasswordInput from './PasswordInput';
 
 interface UserData {
   id: number;
@@ -297,11 +298,10 @@ export default function KelolaWarga() {
                 <option value="admin">Admin</option>
                 <option value="koordinator_perblok">Koordinator</option>
               </select>
-              <input
-                type="password"
-                placeholder={editingUser ? "Password (kosongkan jika tidak diubah)" : "Password"}
+              <PasswordInput
                 value={userForm.password}
-                onChange={(e) => setUserForm({...userForm, password: e.target.value})}
+                onChange={(value) => setUserForm({...userForm, password: value})}
+                placeholder={editingUser ? "Password (kosongkan jika tidak diubah)" : "Password"}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 required={!editingUser}
               />

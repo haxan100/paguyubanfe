@@ -1,7 +1,6 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Home, MessageCircle, CreditCard, Newspaper, User, Users } from 'lucide-react';
-import { useNotifications } from '../hooks/useNotifications';
 
 interface MobileLayoutProps {
   children: React.ReactNode;
@@ -11,7 +10,6 @@ interface MobileLayoutProps {
 
 export default function MobileLayout({ children, currentPage, onPageChange }: MobileLayoutProps) {
   const { user, logout } = useAuth();
-  const { checkNotifications } = useNotifications(user?.jenis || '');
 
   const getMenuItems = () => {
     if (user?.jenis === 'ketua') {

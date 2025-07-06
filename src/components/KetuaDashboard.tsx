@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, MessageCircle, CreditCard, Newspaper } from 'lucide-react';
 import { apiRequest } from '../utils/api';
-import { useNotifications } from '../hooks/useNotifications';
 
 interface UserData {
   id: number;
@@ -27,7 +26,6 @@ export default function KetuaDashboard() {
   const [payments, setPayments] = useState<PaymentData[]>([]);
   const [posts, setPosts] = useState<PostData[]>([]);
   const [aduan, setAduan] = useState<AduanData[]>([]);
-  const { checkNotifications } = useNotifications('ketua');
 
   useEffect(() => {
     fetchData();

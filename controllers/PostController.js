@@ -38,6 +38,17 @@ class PostController {
       const user_id = req.user.id;
       
       const result = await Post.create({ user_id, konten, foto });
+      
+      // Emit notification to ketua
+      const io = req.app.get('io');
+      console.log('📢 Emitting new-post notification:', req.user.nama);
+      io.emit('new-post', {
+        type: 'post',
+        message: 'Postingan baru dari warga',
+        user: req.user.nama,
+        timestamp: new Date()
+      });
+      
       res.json({ status: 'success', message: 'Post berhasil dibuat', id: result.insertId });
     } catch (error) {
       console.error('Error creating post:', error);

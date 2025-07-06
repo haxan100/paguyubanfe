@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useSocket } from './hooks/useSocket';
 import { DataProvider } from './contexts/DataContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import LoginForm from './components/LoginForm';
@@ -29,6 +30,15 @@ function AppContent() {
   const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
+  const handleDataUpdate = (type: string) => {
+    console.log('🔄 Refreshing data for:', type);
+    setRefreshTrigger(prev => prev + 1);
+  };
+  
+  // Initialize Socket.IO
+  useSocket(user?.id || '', user?.jenis || '', handleDataUpdate);
 
   useEffect(() => {
     const handleResize = () => {

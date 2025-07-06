@@ -2,7 +2,6 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { useNotifications } from '../hooks/useNotifications';
 import { 
   Home, 
   MessageCircle, 
@@ -28,7 +27,6 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
   const { user, logout } = useAuth();
   const { settings } = useData();
   const { isDarkMode, toggleTheme } = useTheme();
-  const { checkNotifications } = useNotifications(user?.jenis || '');
 
   const getMenuItems = () => {
     const baseItems = [

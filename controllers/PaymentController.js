@@ -43,6 +43,17 @@ class PaymentController {
       }
       
       const result = await Payment.create({ user_id, tahun, bulan, jumlah, bukti_transfer });
+      
+      // Emit notification to ketua
+      const io = req.app.get('io');
+      console.log('💰 Emitting new-payment notification:', req.user.nama);
+      io.emit('new-payment', {
+        type: 'payment',
+        message: 'Pembayaran baru menunggu konfirmasi',
+        user: req.user.nama,
+        timestamp: new Date()
+      });
+      
       res.json({ status: 'success', message: 'Pembayaran berhasil diupload', id: result.insertId });
     } catch (error) {
       console.error('Error creating payment:', error);
