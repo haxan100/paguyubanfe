@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Home, MessageCircle, CreditCard, Newspaper, User } from 'lucide-react';
+import { Home, MessageCircle, CreditCard, Newspaper, User, Users } from 'lucide-react';
+import { useNotifications } from '../hooks/useNotifications';
 
 interface MobileLayoutProps {
   children: React.ReactNode;
@@ -10,14 +11,37 @@ interface MobileLayoutProps {
 
 export default function MobileLayout({ children, currentPage, onPageChange }: MobileLayoutProps) {
   const { user, logout } = useAuth();
+  const { checkNotifications } = useNotifications(user?.jenis || '');
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Home', icon: Home },
-    { id: 'info-warga', label: 'Info', icon: Newspaper },
-    { id: 'aduan-saya', label: 'Aduan', icon: MessageCircle },
-    { id: 'payments', label: 'Bayar', icon: CreditCard },
-    { id: 'profile', label: 'Profile', icon: User }
-  ];
+  const getMenuItems = () => {
+    if (user?.jenis === 'ketua') {
+      return [
+        { id: 'dashboard', label: 'Home', icon: Home },
+        { id: 'info-warga', label: 'Info', icon: Newspaper },
+        { id: 'kelola-warga', label: 'Kelola', icon: Users },
+        { id: 'aduan-warga', label: 'Aduan', icon: MessageCircle },
+        { id: 'pembayaran-warga', label: 'Bayar', icon: CreditCard }
+      ];
+    }
+    if (user?.jenis === 'koordinator_perblok') {
+      return [
+        { id: 'dashboard', label: 'Home', icon: Home },
+        { id: 'info-warga', label: 'Info', icon: Newspaper },
+        { id: 'kelola-warga-blok', label: 'Kelola', icon: Users },
+        { id: 'aduan-warga', label: 'Aduan', icon: MessageCircle },
+        { id: 'pembayaran-warga', label: 'Bayar', icon: CreditCard }
+      ];
+    }
+    return [
+      { id: 'dashboard', label: 'Home', icon: Home },
+      { id: 'info-warga', label: 'Info', icon: Newspaper },
+      { id: 'aduan-saya', label: 'Aduan', icon: MessageCircle },
+      { id: 'payments', label: 'Bayar', icon: CreditCard },
+      { id: 'profile', label: 'Profile', icon: User }
+    ];
+  };
+
+  const menuItems = getMenuItems();
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">

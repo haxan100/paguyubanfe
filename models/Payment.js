@@ -109,6 +109,19 @@ class Payment {
     return rows;
   }
 
+  static async getTotalIncome() {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [rows] = await connection.execute(`
+      SELECT SUM(jumlah) as total 
+      FROM payments 
+      WHERE status = 'dikonfirmasi'
+    `);
+    
+    await connection.end();
+    return rows[0]?.total || 0;
+  }
+
   static async updateStatus(id, status, adminId, catatan = null) {
     const connection = await mysql.createConnection(dbConfig);
     

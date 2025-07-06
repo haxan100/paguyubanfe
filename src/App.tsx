@@ -19,6 +19,11 @@ import AduanSaya from './components/AduanSaya';
 import InfoWarga from './components/InfoWarga';
 import PaymentWarga from './components/PaymentWarga';
 import KetuaDashboard from './components/KetuaDashboard';
+import KelolaWarga from './components/KelolaWarga';
+import AduanWarga from './components/AduanWarga';
+import PembayaranWarga from './components/PembayaranWarga';
+import KoordinatorDashboard from './components/KoordinatorDashboard';
+import KelolaWargaBlok from './components/KelolaWargaBlok';
 
 function AppContent() {
   const { user } = useAuth();
@@ -41,7 +46,9 @@ function AppContent() {
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return user?.jenis === 'ketua' ? <KetuaDashboard /> : <Dashboard />;
+        if (user?.jenis === 'ketua') return <KetuaDashboard />;
+        if (user?.jenis === 'koordinator_perblok') return <KoordinatorDashboard />;
+        return <Dashboard />;
       case 'info-warga':
         return <InfoWarga />;
       case 'aduan-saya':
@@ -68,8 +75,18 @@ function AppContent() {
         return <DocumentManagement />;
       case 'management':
         return <Settings />;
+      case 'kelola-warga':
+        return <KelolaWarga />;
+      case 'aduan-warga':
+        return <AduanWarga />;
+      case 'pembayaran-warga':
+        return <PembayaranWarga />;
+      case 'kelola-warga-blok':
+        return <KelolaWargaBlok />;
       default:
-        return user?.jenis === 'ketua' ? <KetuaDashboard /> : <Dashboard />;
+        if (user?.jenis === 'ketua') return <KetuaDashboard />;
+        if (user?.jenis === 'koordinator_perblok') return <KoordinatorDashboard />;
+        return <Dashboard />;
     }
   };
 

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
+import { apiRequest } from '../utils/api';
 import { 
   MessageCircle, 
   CreditCard, 
@@ -15,6 +16,23 @@ import {
 export default function Dashboard() {
   const { user } = useAuth();
   const { complaints, payments, getPaymentsByUser, getPaymentsByBlok } = useData();
+  const [totalIncome, setTotalIncome] = useState(0);
+
+  useEffect(() => {
+    fetchTotalIncome();
+  }, []);
+
+  const fetchTotalIncome = async () => {
+    try {
+      const response = await apiRequest('/api/total-income');
+      const result = await response.json();
+      if (result.status === 'success') {
+        setTotalIncome(result.data.totalIncome);
+      }
+    } catch (error) {
+      console.error('Error fetching total income:', error);
+    }
+  };
 
   const getWargaStats = () => {
     if (!user) return { totalPayments: 0, paidPayments: 0, pendingPayments: 0, totalComplaints: 0 };
@@ -59,6 +77,20 @@ export default function Dashboard() {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pemasukan</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  Rp {totalIncome.toLocaleString()}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
+                <DollarSign size={24} className="text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+          </div>
+          
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -276,7 +308,9 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pemasukan</p>
-              <p className="text-2xl font-bold text-green-600 dark:text-green-400">Rp 3.0M</p>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                Rp {totalIncome.toLocaleString()}
+              </p>
             </div>
             <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
               <DollarSign size={24} className="text-green-600 dark:text-green-400" />

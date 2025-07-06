@@ -27,6 +27,27 @@ class UserController {
     try {
       const { nama, email, no_hp, blok, jenis, password } = req.body;
       
+      // Validasi blok untuk koordinator
+      if (req.user.jenis === 'koordinator_perblok') {
+        const userBlok = req.user.blok?.charAt(0);
+        const targetBlok = blok?.charAt(0);
+        
+        if (userBlok !== targetBlok) {
+          return res.status(403).json({ 
+            status: 'error', 
+            message: `Koordinator hanya bisa menambah warga di Blok ${userBlok}` 
+          });
+        }
+        
+        // Koordinator hanya bisa buat warga
+        if (jenis !== 'warga') {
+          return res.status(403).json({ 
+            status: 'error', 
+            message: 'Koordinator hanya bisa menambah warga' 
+          });
+        }
+      }
+      
       const hashedPassword = await bcrypt.hash(password, 10);
       
       await User.create({
@@ -54,6 +75,28 @@ class UserController {
       const { id } = req.params;
       const { nama, email, no_hp, blok, jenis, password } = req.body;
       
+      // Validasi blok untuk koordinator
+      if (req.user.jenis === 'koordinator_perblok') {
+        const userBlok = req.user.blok?.charAt(0);
+        const targetBlok = blok?.charAt(0);
+        
+        if (userBlok !== targetBlok) {
+          return res.status(403).json({ 
+            status: 'error', 
+            message: `Koordinator hanya bisa mengubah warga di Blok ${userBlok}` 
+          });
+        }
+        
+        // Check existing user blok
+        const existingUser = await User.findById(id);
+        if (existingUser && existingUser.blok?.charAt(0) !== userBlok) {
+          return res.status(403).json({ 
+            status: 'error', 
+            message: 'Tidak memiliki izin untuk mengubah user ini' 
+          });
+        }
+      }
+      
       const updateData = { nama, email, no_hp, blok, jenis };
       
       if (password) {
@@ -71,6 +114,20 @@ class UserController {
   static async delete(req, res) {
     try {
       const { id } = req.params;
+      
+      // Validasi blok untuk koordinator
+      if (req.user.jenis === 'koordinator_perblok') {
+        const userBlok = req.user.blok?.charAt(0);
+        const existingUser = await User.findById(id);
+        
+        if (existingUser && existingUser.blok?.charAt(0) !== userBlok) {
+          return res.status(403).json({ 
+            status: 'error', 
+            message: 'Tidak memiliki izin untuk menghapus user ini' 
+          });
+        }
+      }
+      
       await User.delete(id);
       res.json({ status: 'success', message: 'User berhasil dihapus' });
     } catch (error) {

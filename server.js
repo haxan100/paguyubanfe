@@ -31,6 +31,8 @@ app.get('/api/aduan', verifyToken, checkRole(['admin', 'ketua', 'koordinator_per
 app.get('/api/aduan/user', verifyToken, AduanController.getByUser);
 app.put('/api/aduan/:id', verifyToken, AduanController.upload.single('foto'), AduanController.update);
 app.put('/api/aduan/:id/status', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), AduanController.upload.single('foto_jawaban'), AduanController.updateStatus);
+app.post('/api/aduan/:id/comments', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), AduanController.addComment);
+app.get('/api/aduan/:id/comments', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), AduanController.getComments);
 app.delete('/api/aduan/:id', verifyToken, AduanController.delete);
 
 // Post Routes (Protected)
@@ -52,17 +54,18 @@ app.put('/api/payments/:id/status', verifyToken, checkRole(['admin', 'ketua', 'k
 app.delete('/api/payments/:id', verifyToken, PaymentController.delete);
 app.get('/api/payments/export/:tahun', verifyToken, PaymentController.exportPayments);
 
-// User Management Routes (Ketua only)
-app.get('/api/users', verifyToken, checkRole(['ketua']), UserController.getAll);
+// User Management Routes (Ketua & Koordinator)
+app.get('/api/users', verifyToken, checkRole(['ketua', 'koordinator_perblok']), UserController.getAll);
 app.get('/api/users/role/:role', verifyToken, checkRole(['ketua']), UserController.getByRole);
-app.post('/api/users', verifyToken, checkRole(['ketua']), UserController.create);
-app.put('/api/users/:id', verifyToken, checkRole(['ketua']), UserController.update);
-app.delete('/api/users/:id', verifyToken, checkRole(['ketua']), UserController.delete);
+app.post('/api/users', verifyToken, checkRole(['ketua', 'koordinator_perblok']), UserController.create);
+app.put('/api/users/:id', verifyToken, checkRole(['ketua', 'koordinator_perblok']), UserController.update);
+app.delete('/api/users/:id', verifyToken, checkRole(['ketua', 'koordinator_perblok']), UserController.delete);
 
 // Payment Admin Routes (Ketua only)
 app.get('/api/admin/payments', verifyToken, checkRole(['ketua']), PaymentAdminController.getAllPayments);
 app.put('/api/admin/payments/:id/confirm', verifyToken, checkRole(['ketua']), PaymentAdminController.confirmPayment);
 app.get('/api/admin/payments/export/:tahun/:bulan', verifyToken, checkRole(['ketua']), PaymentAdminController.exportAllPayments);
+app.get('/api/total-income', verifyToken, PaymentAdminController.getTotalIncome);
 
 // Serve uploaded files
 app.use('/assets', express.static('public/assets'));

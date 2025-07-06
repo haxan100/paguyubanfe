@@ -33,6 +33,18 @@ class User {
     return rows[0];
   }
 
+  static async findById(id) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [rows] = await connection.execute(
+      'SELECT * FROM users WHERE id = ?',
+      [id]
+    );
+    
+    await connection.end();
+    return rows[0];
+  }
+
   static async findAll() {
     const connection = await mysql.createConnection(dbConfig);
     

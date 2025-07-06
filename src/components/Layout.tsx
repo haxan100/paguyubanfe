@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useNotifications } from '../hooks/useNotifications';
 import { 
   Home, 
   MessageCircle, 
@@ -27,6 +28,7 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
   const { user, logout } = useAuth();
   const { settings } = useData();
   const { isDarkMode, toggleTheme } = useTheme();
+  const { checkNotifications } = useNotifications(user?.jenis || '');
 
   const getMenuItems = () => {
     const baseItems = [
@@ -42,12 +44,12 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
           { id: 'payments', label: 'Pembayaran', icon: CreditCard },
           { id: 'documents', label: 'Dokumen', icon: FileText }
         ];
-      case 'koordinator':
+      case 'koordinator_perblok':
         return [
           ...baseItems,
-          { id: 'verify-payments', label: 'Verifikasi Bayar', icon: CheckCircle },
-          { id: 'residents', label: 'Data Warga', icon: Users },
-          { id: 'documents', label: 'Dokumen', icon: FileText },
+          { id: 'kelola-warga-blok', label: 'Kelola Warga', icon: Users },
+          { id: 'aduan-warga', label: 'Aduan Warga', icon: MessageCircle },
+          { id: 'pembayaran-warga', label: 'Pembayaran Warga', icon: CreditCard }
         ];
       case 'admin':
         const adminItems = [...baseItems];
@@ -61,16 +63,12 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
         );
         return adminItems;
       case 'ketua':
-        const ketuaItems = [...baseItems];
-        if (settings.complaintMenuEnabled) {
-          ketuaItems.push({ id: 'reports', label: 'Laporan', icon: MessageCircle });
-        }
-        ketuaItems.push(
-          { id: 'finance', label: 'Keuangan', icon: CreditCard },
-          { id: 'document-management', label: 'Kelola Dokumen', icon: FileText },
-          { id: 'management', label: 'Manajemen', icon: Settings }
-        );
-        return ketuaItems;
+        return [
+          ...baseItems,
+          { id: 'kelola-warga', label: 'Kelola Warga', icon: Users },
+          { id: 'aduan-warga', label: 'Aduan Warga', icon: MessageCircle },
+          { id: 'pembayaran-warga', label: 'Pembayaran Warga', icon: CreditCard }
+        ];
       default:
         return baseItems;
     }

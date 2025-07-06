@@ -215,7 +215,16 @@ export default function PaymentWarga() {
 
   const recentMonths = getRecentMonths();
   const hasUnpaidLastMonth = getPaymentStatus(recentMonths[1].tahun, recentMonths[1].bulan) === 'belum_bayar';
-  const isMobile = window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className={`${isMobile ? 'space-y-4' : 'max-w-4xl mx-auto p-6 space-y-6'}`}>

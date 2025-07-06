@@ -93,6 +93,34 @@ class Aduan {
     await connection.end();
   }
 
+  static async addComment(commentData) {
+    const connection = await mysql.createConnection(dbConfig);
+    const { aduan_id, user_id, komentar } = commentData;
+    
+    const [result] = await connection.execute(
+      'INSERT INTO aduan_comments (aduan_id, user_id, komentar) VALUES (?, ?, ?)',
+      [aduan_id, user_id, komentar]
+    );
+    
+    await connection.end();
+    return result;
+  }
+
+  static async getComments(aduanId) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [rows] = await connection.execute(`
+      SELECT ac.*, u.nama, u.jenis, u.blok 
+      FROM aduan_comments ac 
+      JOIN users u ON ac.user_id = u.id 
+      WHERE ac.aduan_id = ? 
+      ORDER BY ac.tanggal_komentar ASC
+    `, [aduanId]);
+    
+    await connection.end();
+    return rows;
+  }
+
   static async delete(id) {
     const connection = await mysql.createConnection(dbConfig);
     

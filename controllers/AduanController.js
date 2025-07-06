@@ -113,6 +113,31 @@ class AduanController {
     }
   }
 
+  static async addComment(req, res) {
+    try {
+      const { id } = req.params;
+      const { komentar } = req.body;
+      const user_id = req.user.id;
+      
+      await Aduan.addComment({ aduan_id: id, user_id, komentar });
+      res.json({ status: 'success', message: 'Komentar berhasil ditambahkan' });
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      res.status(500).json({ status: 'error', message: error.message });
+    }
+  }
+
+  static async getComments(req, res) {
+    try {
+      const { id } = req.params;
+      const comments = await Aduan.getComments(id);
+      res.json({ status: 'success', data: comments });
+    } catch (error) {
+      console.error('Error getting comments:', error);
+      res.status(500).json({ status: 'error', message: error.message });
+    }
+  }
+
   static async delete(req, res) {
     try {
       const { id } = req.params;

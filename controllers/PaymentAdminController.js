@@ -26,6 +26,19 @@ class PaymentAdminController {
     }
   }
 
+  static async getTotalIncome(req, res) {
+    try {
+      const totalIncome = await Payment.getTotalIncome();
+      res.json({ 
+        status: 'success', 
+        data: { totalIncome }
+      });
+    } catch (error) {
+      console.error('Error getting total income:', error);
+      res.status(500).json({ status: 'error', message: error.message });
+    }
+  }
+
   static async exportAllPayments(req, res) {
     try {
       const { tahun, bulan } = req.params;
