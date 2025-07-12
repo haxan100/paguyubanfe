@@ -3,22 +3,21 @@ import { Plus, Edit, Trash2, Filter, Users } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { apiRequest } from '../utils/api';
 
-interface UserData {
+interface WargaData {
   id: number;
   nama: string;
   email: string;
   no_hp: string;
   blok: string;
-  jenis: string;
   created_at: string;
 }
 
 export default function KelolaWargaAdmin() {
-  const [users, setUsers] = useState<UserData[]>([]);
+  const [warga, setWarga] = useState<WargaData[]>([]);
   const [blokList, setBlokList] = useState<string[]>([]);
   const [selectedBlok, setSelectedBlok] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [editingUser, setEditingUser] = useState<UserData | null>(null);
+  const [editingWarga, setEditingWarga] = useState<WargaData | null>(null);
   const [formData, setFormData] = useState({
     nama: '',
     email: '',
@@ -28,30 +27,30 @@ export default function KelolaWargaAdmin() {
   });
 
   useEffect(() => {
-    fetchUsers();
+    fetchWarga();
     fetchBlokList();
   }, []);
 
   useEffect(() => {
-    fetchUsers();
+    fetchWarga();
   }, [selectedBlok]);
 
-  const fetchUsers = async () => {
+  const fetchWarga = async () => {
     try {
-      const url = selectedBlok ? `/api/users?blok=${selectedBlok}` : '/api/users';
+      const url = selectedBlok ? `/api/warga?blok=${selectedBlok}` : '/api/warga';
       const response = await apiRequest(url);
       const result = await response.json();
       if (result.status === 'success') {
-        setUsers(result.data);
+        setWarga(result.data);
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching warga:', error);
     }
   };
 
   const fetchBlokList = async () => {
     try {
-      const response = await apiRequest('/api/users/blok');
+      const response = await apiRequest('/api/warga/blok');
       const result = await response.json();
       if (result.status === 'success') {
         setBlokList(result.data);
@@ -65,8 +64,8 @@ export default function KelolaWargaAdmin() {
     e.preventDefault();
     
     try {
-      const url = editingUser ? `/api/users/${editingUser.id}` : '/api/users';
-      const method = editingUser ? 'PUT' : 'POST';
+      const url = editingWarga ? `/api/warga/${editingWarga.id}` : '/api/warga';
+      const method = editingWarga ? 'PUT' : 'POST';
       
       const response = await apiRequest(url, {
         method,
@@ -77,9 +76,9 @@ export default function KelolaWargaAdmin() {
       const result = await response.json();
       if (result.status === 'success') {
         setShowModal(false);
-        setEditingUser(null);
+        setEditingWarga(null);
         setFormData({ nama: '', email: '', no_hp: '', blok: '', password: '' });
-        fetchUsers();
+        fetchWarga();
         fetchBlokList();
         Swal.fire({
           icon: 'success',
@@ -100,13 +99,13 @@ export default function KelolaWargaAdmin() {
     }
   };
 
-  const handleEdit = (user: UserData) => {
-    setEditingUser(user);
+  const handleEdit = (wargaItem: WargaData) => {
+    setEditingWarga(wargaItem);
     setFormData({
-      nama: user.nama,
-      email: user.email,
-      no_hp: user.no_hp,
-      blok: user.blok,
+      nama: wargaItem.nama,
+      email: wargaItem.email,
+      no_hp: wargaItem.no_hp,
+      blok: wargaItem.blok,
       password: ''
     });
     setShowModal(true);
@@ -126,13 +125,13 @@ export default function KelolaWargaAdmin() {
 
     if (result.isConfirmed) {
       try {
-        const response = await apiRequest(`/api/users/${id}`, {
+        const response = await apiRequest(`/api/warga/${id}`, {
           method: 'DELETE'
         });
 
         const data = await response.json();
         if (data.status === 'success') {
-          fetchUsers();
+          fetchWarga();
           fetchBlokList();
           Swal.fire({
             icon: 'success',
@@ -182,7 +181,7 @@ export default function KelolaWargaAdmin() {
           ))}
         </select>
         <span className="text-sm text-gray-600">
-          Total: {users.length} warga
+          Total: {warga.length} warga
         </span>
       </div>
 
@@ -213,36 +212,36 @@ export default function KelolaWargaAdmin() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
+              {warga.map((wargaItem) => (
+                <tr key={wargaItem.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium text-gray-900">{user.nama}</div>
+                    <div className="font-medium text-gray-900">{wargaItem.nama}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.email}
+                    {wargaItem.email}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.no_hp || '-'}
+                    {wargaItem.no_hp || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                      Blok {user.blok}
+                      Blok {wargaItem.blok}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(user.created_at).toLocaleDateString('id-ID')}
+                    {new Date(wargaItem.created_at).toLocaleDateString('id-ID')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => handleEdit(user)}
+                        onClick={() => handleEdit(wargaItem)}
                         className="text-blue-600 hover:text-blue-900"
                         title="Edit"
                       >
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => handleDelete(user.id, user.nama)}
+                        onClick={() => handleDelete(wargaItem.id, wargaItem.nama)}
                         className="text-red-600 hover:text-red-900"
                         title="Hapus"
                       >
@@ -262,7 +261,7 @@ export default function KelolaWargaAdmin() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold mb-4">
-              {editingUser ? 'Edit Warga' : 'Tambah Warga'}
+              {editingWarga ? 'Edit Warga' : 'Tambah Warga'}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -318,7 +317,7 @@ export default function KelolaWargaAdmin() {
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  required={!editingUser}
+                  required={!editingWarga}
                 />
               </div>
               
@@ -327,13 +326,13 @@ export default function KelolaWargaAdmin() {
                   type="submit"
                   className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
                 >
-                  {editingUser ? 'Update' : 'Tambah'}
+                  {editingWarga ? 'Update' : 'Tambah'}
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setShowModal(false);
-                    setEditingUser(null);
+                    setEditingWarga(null);
                     setFormData({ nama: '', email: '', no_hp: '', blok: '', password: '' });
                   }}
                   className="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600"

@@ -10,6 +10,7 @@ import PostController from './controllers/PostController.js';
 import PaymentController from './controllers/PaymentController.js';
 import PaymentAdminController from './controllers/PaymentAdminController.js';
 import UserController from './controllers/UserController.js';
+import WargaController from './controllers/WargaController.js';
 import PengeluaranController from './controllers/PengeluaranController.js';
 import BukuKasController from './controllers/BukuKasController.js';
 import DokumenController from './controllers/DokumenController.js';
@@ -83,13 +84,15 @@ app.put('/api/payments/:id/status', verifyToken, checkRole(['admin', 'ketua', 'k
 app.delete('/api/payments/:id', verifyToken, PaymentController.delete);
 app.get('/api/payments/export/:tahun', verifyToken, PaymentController.exportPayments);
 
-// User Management Routes (Admin, Ketua & Koordinator)
-app.get('/api/users', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), UserController.getAll);
-app.get('/api/users/blok', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), UserController.getBlokList);
+// User Management Routes (Ketua & Koordinator)
 app.get('/api/users/role/:role', verifyToken, checkRole(['ketua']), UserController.getByRole);
-app.post('/api/users', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), UserController.create);
-app.put('/api/users/:id', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), UserController.update);
-app.delete('/api/users/:id', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), UserController.delete);
+
+// Warga Management Routes (Admin, Ketua & Koordinator)
+app.get('/api/warga', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), WargaController.getAll);
+app.get('/api/warga/blok', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), WargaController.getBlokList);
+app.post('/api/warga', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), WargaController.create);
+app.put('/api/warga/:id', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), WargaController.update);
+app.delete('/api/warga/:id', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), WargaController.delete);
 
 // Payment Admin Routes (Ketua only)
 app.get('/api/admin/payments', verifyToken, checkRole(['ketua']), PaymentAdminController.getAllPayments);

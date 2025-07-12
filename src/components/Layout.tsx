@@ -67,7 +67,7 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
           { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
           { id: 'buku-kas', label: 'Buku Kas', icon: BookOpen },
           { id: 'dokumen', label: 'Dokumen', icon: FileText },
-          { id: 'users', label: 'Kelola User', icon: Users }
+          { id: 'kelola-warga-admin', label: 'Kelola Warga', icon: Users }
         );
         return adminItems;
       case 'ketua':

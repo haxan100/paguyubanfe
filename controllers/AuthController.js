@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
+import Warga from '../models/Warga.js';
 import { generateToken } from '../middleware/auth.js';
 
 class AuthController {
@@ -7,7 +8,16 @@ class AuthController {
     try {
       const { email, password } = req.body;
       
-      const user = await User.findByEmail(email);
+      // Try users table first (admin, ketua, koordinator)
+      let user = await User.findByEmail(email);
+      let isWarga = false;
+      
+      // If not found, try warga table
+      if (!user) {
+        user = await Warga.findByEmail(email);
+        isWarga = true;
+      }
+      
       if (!user) {
         return res.status(401).json({ status: 'error', message: 'Email atau password salah' });
       }
@@ -17,7 +27,13 @@ class AuthController {
         return res.status(401).json({ status: 'error', message: 'Email atau password salah' });
       }
       
-      const token = generateToken(user);
+      // Create user object with jenis
+      const userWithJenis = {
+        ...user,
+        jenis: isWarga ? 'warga' : user.jenis
+      };
+      
+      const token = generateToken(userWithJenis);
       
       res.json({
         status: 'success',
@@ -26,7 +42,7 @@ class AuthController {
           id: user.id,
           nama: user.nama,
           email: user.email,
-          jenis: user.jenis,
+          jenis: isWarga ? 'warga' : user.jenis,
           blok: user.blok
         }
       });
