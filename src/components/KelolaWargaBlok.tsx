@@ -54,6 +54,8 @@ export default function KelolaWargaBlok() {
     
     // Validasi blok di frontend
     const targetBlok = wargaForm.blok?.charAt(0);
+    console.log("sssssssssssssssssssssssssssssssssssssssss");
+    console.log(targetBlok, userBlok);
     if (targetBlok !== userBlok) {
       Swal.fire({
         icon: 'error',

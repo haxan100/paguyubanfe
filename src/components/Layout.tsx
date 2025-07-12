@@ -18,7 +18,8 @@ import {
   Newspaper,
   TrendingDown,
   BookOpen,
-  Info
+  Info,
+  UserCog
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -83,7 +84,7 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
         return [
           ...baseItems,
           { id: 'kelola-warga', label: 'Kelola Warga', icon: Users },
-          { id: 'kelola-perangkat', label: 'Kelola Perangkat', icon: Settings },
+          { id: 'kelola-perangkat', label: 'Perangkat Komunitas', icon: UserCog },
           { id: 'aduan-warga', label: 'Aduan Warga', icon: MessageCircle },
           { id: 'pembayaran-warga', label: 'Pembayaran Warga', icon: CreditCard },
           { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
