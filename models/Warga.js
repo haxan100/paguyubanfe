@@ -27,6 +27,19 @@ class Warga {
     return rows[0];
   }
 
+  static async findByPhone(phone) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [rows] = await connection.execute(
+      'SELECT * FROM warga WHERE no_hp = ?',
+      [phone]
+    );
+    
+    await connection.end();
+    console.log(rows);
+    return rows[0];
+  }
+
   static async findById(id) {
     const connection = await mysql.createConnection(dbConfig);
     

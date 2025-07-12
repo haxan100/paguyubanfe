@@ -16,6 +16,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  updateUser: (updatedUser: User) => void;
   isLoading: boolean;
   getAuthHeaders: () => Record<string, string>;
 }
@@ -74,13 +75,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('token');
   };
 
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
   const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
     return token ? { 'Authorization': `Bearer ${token}` } : {};
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading, getAuthHeaders }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, isLoading, getAuthHeaders }}>
       {children}
     </AuthContext.Provider>
   );

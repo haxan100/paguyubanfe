@@ -18,6 +18,7 @@ import PengeluaranController from './controllers/PengeluaranController.js';
 import BukuKasController from './controllers/BukuKasController.js';
 import DokumenController from './controllers/DokumenController.js';
 import DashboardController from './controllers/DashboardController.js';
+import WargaProfileController from './controllers/WargaProfileController.js';
 import { verifyToken, checkRole } from './middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -125,6 +126,10 @@ app.delete('/api/dokumen/:id', verifyToken, checkRole(['ketua', 'admin']), Dokum
 
 // Dashboard Routes
 app.get('/api/dashboard/koordinator', verifyToken, checkRole(['koordinator_perblok']), DashboardController.getKoordinatorStats);
+
+// Warga Profile Routes
+app.put('/api/warga/profile', verifyToken, checkRole(['warga']), WargaProfileController.updateProfile);
+app.put('/api/warga/password', verifyToken, checkRole(['warga']), WargaProfileController.updatePassword);
 
 // Serve uploaded files
 app.use('/assets', express.static('public/assets'));

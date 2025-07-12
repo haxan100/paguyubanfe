@@ -19,13 +19,13 @@ export default function Dashboard() {
   const [totalIncome, setTotalIncome] = useState(0);
   const [koordinatorStats, setKoordinatorStats] = useState({
     totalWarga: 0,
-    totalAduan: 0,
     totalPemasukan: 0,
     totalPengeluaran: 0,
     saldo: 0
   });
 
   useEffect(() => {
+    console.log("usernya!!!!", user);
     if (user?.jenis === 'koordinator_perblok') {
       fetchKoordinatorStats();
     } else {
@@ -48,7 +48,16 @@ export default function Dashboard() {
   const fetchKoordinatorStats = async () => {
     try {
       const response = await apiRequest('/api/dashboard/koordinator');
+      
+      // Check if response is HTML (server error)
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Server returned HTML instead of JSON');
+        return;
+      }
+      
       const result = await response.json();
+      console.log('Koordinator stats:', result);
       if (result.status === 'success') {
         setKoordinatorStats(result.data);
       }
@@ -221,13 +230,15 @@ export default function Dashboard() {
   };
 
   const renderKoordinatorDashboard = () => {
+    const userBlok = user?.blok?.charAt(0);
+    
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Warga Blok</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Warga Blok {userBlok}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{koordinatorStats.totalWarga}</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
@@ -239,20 +250,8 @@ export default function Dashboard() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Aduan Blok</p>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{koordinatorStats.totalAduan}</p>
-              </div>
-              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
-                <MessageCircle size={24} className="text-orange-600 dark:text-orange-400" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-            <div className="flex items-center justify-between">
-              <div>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pemasukan</p>
-                <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                   Rp {koordinatorStats.totalPemasukan.toLocaleString()}
                 </p>
               </div>
@@ -266,7 +265,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pengeluaran</p>
-                <p className="text-xl font-bold text-red-600 dark:text-red-400">
+                <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                   Rp {koordinatorStats.totalPengeluaran.toLocaleString()}
                 </p>
               </div>
@@ -279,8 +278,8 @@ export default function Dashboard() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Saldo Keseluruhan</p>
-                <p className={`text-xl font-bold ${koordinatorStats.saldo >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400'}`}>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Saldo Saat Ini</p>
+                <p className={`text-2xl font-bold ${koordinatorStats.saldo >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400'}`}>
                   Rp {koordinatorStats.saldo.toLocaleString()}
                 </p>
               </div>

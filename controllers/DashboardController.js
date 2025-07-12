@@ -17,21 +17,25 @@ class DashboardController {
       const [aduanResult] = await connection.execute(`
         SELECT COUNT(*) as total 
         FROM aduan a 
-        JOIN warga w ON a.user_id = w.id 
-        WHERE w.blok LIKE ?
-      `, [`${userBlok}%`]);
+        WHERE a.user_id IN (
+          SELECT id FROM warga WHERE blok LIKE ?
+          UNION
+          SELECT id FROM users WHERE blok LIKE ? AND jenis = 'warga'
+        )
+      `, [`${userBlok}%`, `${userBlok}%`]);
       
-      // Total saldo keseluruhan
-      const [saldoResult] = await connection.execute(`
-        SELECT 
-          COALESCE(SUM(CASE WHEN p.status = 'dikonfirmasi' THEN p.jumlah ELSE 0 END), 0) as total_pemasukan,
-          COALESCE((SELECT SUM(jumlah) FROM pengeluaran), 0) as total_pengeluaran
-        FROM payments p
-        JOIN warga w ON p.user_id = w.id
-      `);
+      // Total pemasukan keseluruhan
+      const [pemasukanResult] = await connection.execute(
+        'SELECT COALESCE(SUM(jumlah), 0) as total FROM payments WHERE status = "dikonfirmasi"'
+      );
       
-      const totalPemasukan = saldoResult[0].total_pemasukan;
-      const totalPengeluaran = saldoResult[0].total_pengeluaran;
+      // Total pengeluaran keseluruhan
+      const [pengeluaranResult] = await connection.execute(
+        'SELECT COALESCE(SUM(jumlah), 0) as total FROM pengeluaran'
+      );
+      
+      const totalPemasukan = parseInt(pemasukanResult[0].total) || 0;
+      const totalPengeluaran = parseInt(pengeluaranResult[0].total) || 0;
       const saldo = totalPemasukan - totalPengeluaran;
       
       await connection.end();
@@ -39,8 +43,8 @@ class DashboardController {
       res.json({
         status: 'success',
         data: {
-          totalWarga: wargaResult[0].total,
-          totalAduan: aduanResult[0].total,
+          totalWarga: parseInt(wargaResult[0].total) || 0,
+          totalAduan: parseInt(aduanResult[0].total) || 0,
           totalPemasukan,
           totalPengeluaran,
           saldo

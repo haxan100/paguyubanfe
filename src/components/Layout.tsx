@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { menuConfig } from '../config/menu.js';
 import { 
   Home, 
   MessageCircle, 
@@ -41,6 +42,7 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
       case 'warga':
         return [
           ...baseItems,
+          { id: 'profile-warga', label: 'Profile Saya', icon: User },
           { id: 'aduan-saya', label: 'Aduan Saya', icon: MessageCircle },
           { id: 'payments', label: 'Pembayaran', icon: CreditCard },
           { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
@@ -133,17 +135,19 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
           
           {/* About & Theme Toggle & Logout */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
-            <button
-              onClick={() => onPageChange('about')}
-              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                currentPage === 'about'
-                  ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <Info size={20} />
-              <span className="font-medium">Tentang</span>
-            </button>
+            {menuConfig.about.enabled && (
+              <button
+                onClick={() => onPageChange('about')}
+                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                  currentPage === 'about'
+                    ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <Info size={20} />
+                <span className="font-medium">{menuConfig.about.title}</span>
+              </button>
+            )}
             <button
               onClick={toggleTheme}
               className="w-full flex items-center space-x-3 px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors"

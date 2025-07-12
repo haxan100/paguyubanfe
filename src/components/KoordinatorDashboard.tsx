@@ -1,87 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { Users, MessageCircle, CreditCard, Newspaper } from 'lucide-react';
+import { Users, MessageCircle, TrendingUp, DollarSign } from 'lucide-react';
 import { apiRequest } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
 
-interface UserData {
-  id: number;
-  jenis: string;
-  blok: string;
-}
 
-interface PaymentData {
-  id: number;
-  status: string;
-  blok: string;
-}
-
-interface PostData {
-  id: number;
-  blok: string;
-}
-
-interface AduanData {
-  id: number;
-  status: string;
-  blok: string;
-}
 
 export default function KoordinatorDashboard() {
   const { user } = useAuth();
-  const [users, setUsers] = useState<UserData[]>([]);
-  const [payments, setPayments] = useState<PaymentData[]>([]);
-  const [posts, setPosts] = useState<PostData[]>([]);
-  const [aduan, setAduan] = useState<AduanData[]>([]);
+  const [koordinatorStats, setKoordinatorStats] = useState({
+    totalWarga: 0,
+    totalAduan: 0,
+    totalPemasukan: 0,
+    totalPengeluaran: 0,
+    saldo: 0
+  });
+  const [loading, setLoading] = useState(true);
 
   const userBlok = user?.blok?.charAt(0); // Ambil huruf pertama blok
 
   useEffect(() => {
-    fetchData();
+    fetchKoordinatorStats();
   }, []);
 
-  const fetchData = async () => {
+  const fetchKoordinatorStats = async () => {
     try {
-      // Fetch users
-      const usersResponse = await apiRequest('/api/users');
-      const usersResult = await usersResponse.json();
-      if (usersResult.status === 'success') {
-        const filteredUsers = usersResult.data.filter((u: UserData) => 
-          u.blok?.charAt(0) === userBlok && u.jenis === 'warga'
-        );
-        setUsers(filteredUsers);
+      setLoading(true);
+      const response = await apiRequest('/api/dashboard/koordinator');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      // Fetch payments
-      const paymentsResponse = await apiRequest('/api/admin/payments');
-      const paymentsResult = await paymentsResponse.json();
-      if (paymentsResult.status === 'success') {
-        const filteredPayments = paymentsResult.data.filter((p: PaymentData) => 
-          p.blok?.charAt(0) === userBlok
-        );
-        setPayments(filteredPayments);
-      }
-
-      // Fetch posts
-      const postsResponse = await apiRequest('/api/posts');
-      const postsResult = await postsResponse.json();
-      if (postsResult.status === 'success') {
-        const filteredPosts = postsResult.data.filter((p: PostData) => 
-          p.blok?.charAt(0) === userBlok
-        );
-        setPosts(filteredPosts);
-      }
-
-      // Fetch aduan
-      const aduanResponse = await apiRequest('/api/aduan');
-      const aduanResult = await aduanResponse.json();
-      if (aduanResult.status === 'success') {
-        const filteredAduan = aduanResult.data.filter((a: AduanData) => 
-          a.blok?.charAt(0) === userBlok
-        );
-        setAduan(filteredAduan);
+      
+      const result = await response.json();
+      console.log('API Response:', result);
+      
+      if (result.status === 'success') {
+        setKoordinatorStats(result.data);
+      } else {
+        console.error('API Error:', result.message);
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching koordinator stats:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -102,39 +63,34 @@ export default function KoordinatorDashboard() {
         Dashboard Koordinator Blok {userBlok}
       </h1>
       
+      {loading && (
+        <div className="text-center py-4">
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      )}
+      
       {/* Statistics Cards */}
-      <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-2 md:grid-cols-4 gap-6'}`}>
+      <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-2 md:grid-cols-5 gap-6'}`}>
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="flex items-center">
             <Users className="text-blue-500" size={isMobile ? 20 : 24} />
             <div className="ml-4">
               <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-600`}>Warga Blok {userBlok}</p>
               <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-semibold text-gray-900`}>
-                {users.length}
+                {koordinatorStats.totalWarga}
               </p>
             </div>
           </div>
         </div>
+
         
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="flex items-center">
-            <CreditCard className="text-green-500" size={isMobile ? 20 : 24} />
+            <TrendingUp className="text-green-500" size={isMobile ? 20 : 24} />
             <div className="ml-4">
-              <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-600`}>Pembayaran Lunas</p>
-              <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-semibold text-gray-900`}>
-                {payments.filter(p => p.status === 'dikonfirmasi').length}
-              </p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex items-center">
-            <CreditCard className="text-yellow-500" size={isMobile ? 20 : 24} />
-            <div className="ml-4">
-              <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-600`}>Pembayaran Pending</p>
-              <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-semibold text-gray-900`}>
-                {payments.filter(p => p.status === 'menunggu_konfirmasi').length}
+              <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-600`}>Total Pemasukan</p>
+              <p className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold text-gray-900`}>
+                Rp {koordinatorStats.totalPemasukan.toLocaleString()}
               </p>
             </div>
           </div>
@@ -142,49 +98,50 @@ export default function KoordinatorDashboard() {
 
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="flex items-center">
-            <MessageCircle className="text-purple-500" size={isMobile ? 20 : 24} />
+            <TrendingUp className="text-red-500 transform rotate-180" size={isMobile ? 20 : 24} />
             <div className="ml-4">
-              <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-600`}>Aduan Pending</p>
-              <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-semibold text-gray-900`}>
-                {aduan.filter(a => a.status === 'pending').length}
+              <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-600`}>Total Pengeluaran</p>
+              <p className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold text-gray-900`}>
+                Rp {koordinatorStats.totalPengeluaran.toLocaleString()}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <DollarSign className={koordinatorStats.saldo >= 0 ? "text-blue-500" : "text-red-500"} size={isMobile ? 20 : 24} />
+            <div className="ml-4">
+              <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-600`}>Saldo Saat Ini</p>
+              <p className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold ${koordinatorStats.saldo >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                Rp {koordinatorStats.saldo.toLocaleString()}
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-6'}`}>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-900 mb-4`}>
-            Info Warga Blok {userBlok}
-          </h3>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Newspaper className="text-blue-500" size={20} />
-              <span className="ml-2 text-gray-600">Total Posts</span>
-            </div>
-            <span className="text-2xl font-bold text-blue-600">{posts.length}</span>
+      {/* Summary Info */}
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-900 mb-4`}>
+          Ringkasan Blok {userBlok}
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div>
+            <p className="text-2xl font-bold text-blue-600">{koordinatorStats.totalWarga}</p>
+            <p className="text-sm text-gray-600">Total Warga</p>
           </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-900 mb-4`}>
-            Status Aduan Blok {userBlok}
-          </h3>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-green-600">Selesai</span>
-              <span className="font-semibold">{aduan.filter(a => a.status === 'selesai').length}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-blue-600">Proses</span>
-              <span className="font-semibold">{aduan.filter(a => a.status === 'proses').length}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-yellow-600">Pending</span>
-              <span className="font-semibold">{aduan.filter(a => a.status === 'pending').length}</span>
-            </div>
+          <div>
+            <p className="text-2xl font-bold text-orange-600">{koordinatorStats.totalAduan}</p>
+            <p className="text-sm text-gray-600">Total Aduan</p>
+          </div>
+          <div>
+            <p className="text-lg font-bold text-green-600">Rp {(koordinatorStats.totalPemasukan / 1000000).toFixed(1)}M</p>
+            <p className="text-sm text-gray-600">Pemasukan</p>
+          </div>
+          <div>
+            <p className="text-lg font-bold text-red-600">Rp {(koordinatorStats.totalPengeluaran / 1000000).toFixed(1)}M</p>
+            <p className="text-sm text-gray-600">Pengeluaran</p>
           </div>
         </div>
       </div>

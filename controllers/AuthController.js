@@ -7,24 +7,36 @@ class AuthController {
   static async login(req, res) {
     try {
       const { email, password } = req.body;
-      
-      // Try users table first (admin, ketua, koordinator)
-      let user = await User.findByEmail(email);
+      let user = null;
       let isWarga = false;
       
-      // If not found, try warga table
-      if (!user) {
-        user = await Warga.findByEmail(email);
+      // Check if input is phone number (starts with 08)
+      const isPhoneNumber = /^08\d+$/.test(email);
+      console.log("cek dulu",isPhoneNumber);
+      
+      if (isPhoneNumber) {
+        console.log("Searching for phone:", email);
+        // Phone number -> search in warga table only
+        user = await Warga.findByPhone(email);
+        console.log('Found user by phone:', user);
         isWarga = true;
+      } else {
+        // Email format -> try users table first, then warga
+        user = await User.findByEmail(email);
+        
+        if (!user) {
+          user = await Warga.findByEmail(email);
+          isWarga = true;
+        }
       }
       
       if (!user) {
-        return res.status(401).json({ status: 'error', message: 'Email atau password salah' });
+        return res.status(401).json({ status: 'error', message: 'Email atau password salah #1' });
       }
       
       const isValid = await bcrypt.compare(password, user.password);
       if (!isValid) {
-        return res.status(401).json({ status: 'error', message: 'Email atau password salah' });
+        return res.status(401).json({ status: 'error', message: 'Email atau password salah #2' });
       }
       
       // Create user object with jenis
