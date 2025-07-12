@@ -1,11 +1,5 @@
 import mysql from 'mysql2/promise';
-
-const dbConfig = {
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'paguyuban'
-};
+import { dbConfig } from '../config/database.js';
 
 class Dokumen {
   static async create({ judul, deskripsi, kategori, nama_file, ukuran_file, tipe_file, admin_id }) {

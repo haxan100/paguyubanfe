@@ -17,10 +17,21 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { complaints, payments, getPaymentsByUser, getPaymentsByBlok } = useData();
   const [totalIncome, setTotalIncome] = useState(0);
+  const [koordinatorStats, setKoordinatorStats] = useState({
+    totalWarga: 0,
+    totalAduan: 0,
+    totalPemasukan: 0,
+    totalPengeluaran: 0,
+    saldo: 0
+  });
 
   useEffect(() => {
-    fetchTotalIncome();
-  }, []);
+    if (user?.jenis === 'koordinator_perblok') {
+      fetchKoordinatorStats();
+    } else {
+      fetchTotalIncome();
+    }
+  }, [user]);
 
   const fetchTotalIncome = async () => {
     try {
@@ -31,6 +42,18 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Error fetching total income:', error);
+    }
+  };
+
+  const fetchKoordinatorStats = async () => {
+    try {
+      const response = await apiRequest('/api/dashboard/koordinator');
+      const result = await response.json();
+      if (result.status === 'success') {
+        setKoordinatorStats(result.data);
+      }
+    } catch (error) {
+      console.error('Error fetching koordinator stats:', error);
     }
   };
 
@@ -198,16 +221,14 @@ export default function Dashboard() {
   };
 
   const renderKoordinatorDashboard = () => {
-    const stats = getKoordinatorStats();
-
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Warga</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalResidents}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Warga Blok</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{koordinatorStats.totalWarga}</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
                 <Users size={24} className="text-blue-600 dark:text-blue-400" />
@@ -218,11 +239,11 @@ export default function Dashboard() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Menunggu Verifikasi</p>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.pendingPayments}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Aduan Blok</p>
+                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{koordinatorStats.totalAduan}</p>
               </div>
               <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
-                <Clock size={24} className="text-orange-600 dark:text-orange-400" />
+                <MessageCircle size={24} className="text-orange-600 dark:text-orange-400" />
               </div>
             </div>
           </div>
@@ -230,11 +251,45 @@ export default function Dashboard() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Terverifikasi</p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.verifiedPayments}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pemasukan</p>
+                <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                  Rp {koordinatorStats.totalPemasukan.toLocaleString()}
+                </p>
               </div>
               <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
-                <CheckCircle size={24} className="text-green-600 dark:text-green-400" />
+                <TrendingUp size={24} className="text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pengeluaran</p>
+                <p className="text-xl font-bold text-red-600 dark:text-red-400">
+                  Rp {koordinatorStats.totalPengeluaran.toLocaleString()}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/50 rounded-lg flex items-center justify-center">
+                <TrendingUp size={24} className="text-red-600 dark:text-red-400 transform rotate-180" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Saldo Keseluruhan</p>
+                <p className={`text-xl font-bold ${koordinatorStats.saldo >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400'}`}>
+                  Rp {koordinatorStats.saldo.toLocaleString()}
+                </p>
+              </div>
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                koordinatorStats.saldo >= 0 
+                  ? 'bg-blue-100 dark:bg-blue-900/50' 
+                  : 'bg-red-100 dark:bg-red-900/50'
+              }`}>
+                <DollarSign size={24} className={koordinatorStats.saldo >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400'} />
               </div>
             </div>
           </div>
@@ -366,10 +421,10 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {user?.role === 'warga' && renderWargaDashboard()}
-      {user?.role === 'koordinator' && renderKoordinatorDashboard()}
-      {user?.role === 'admin' && renderAdminDashboard()}
-      {user?.role === 'ketua' && renderKetuaDashboard()}
+      {user?.jenis === 'warga' && renderWargaDashboard()}
+      {user?.jenis === 'koordinator_perblok' && renderKoordinatorDashboard()}
+      {user?.jenis === 'admin' && renderAdminDashboard()}
+      {user?.jenis === 'ketua' && renderKetuaDashboard()}
     </div>
   );
 }

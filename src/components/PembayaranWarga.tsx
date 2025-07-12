@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Download, CreditCard } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { apiRequest } from '../utils/api';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Payment {
   id: number;
@@ -14,12 +15,15 @@ interface Payment {
 }
 
 export default function PembayaranWarga() {
+  const { user } = useAuth();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [exportForm, setExportForm] = useState({
     tahun: new Date().getFullYear(),
     bulan: new Date().getMonth() + 1
   });
   const [filterBlok, setFilterBlok] = useState('semua');
+  
+  const userBlok = user?.blok?.charAt(0); // Ambil huruf pertama blok koordinator
 
   const bulanNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
                      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -42,10 +46,24 @@ export default function PembayaranWarga() {
 
   const getUniqueBloks = () => {
     const bloks = payments.map(p => p.blok?.charAt(0)).filter(Boolean);
-    return [...new Set(bloks)].sort();
+    const uniqueBloks = [...new Set(bloks)].sort();
+    
+    // Jika koordinator, hanya tampilkan bloknya
+    if (user?.jenis === 'koordinator_perblok' && userBlok) {
+      return uniqueBloks.filter(blok => blok === userBlok);
+    }
+    
+    return uniqueBloks;
   };
 
   const filteredPayments = payments.filter(payment => {
+    // Jika koordinator, filter otomatis berdasarkan bloknya
+    if (user?.jenis === 'koordinator_perblok' && userBlok) {
+      const paymentBlok = payment.blok?.charAt(0);
+      if (paymentBlok !== userBlok) return false;
+    }
+    
+    // Filter berdasarkan dropdown
     if (filterBlok === 'semua') return true;
     return payment.blok?.charAt(0) === filterBlok;
   });
@@ -154,19 +172,24 @@ export default function PembayaranWarga() {
   return (
     <div className="space-y-6">
       <div className={`flex ${isMobile ? 'flex-col space-y-4' : 'justify-between items-center'}`}>
-        <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900`}>Kelola Pembayaran Warga</h1>
+        <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900`}>
+          Kelola Pembayaran Warga{user?.jenis === 'koordinator_perblok' && userBlok ? ` Blok ${userBlok}` : ''}
+        </h1>
         
         <div className={`flex items-center ${isMobile ? 'flex-col space-y-2' : 'space-x-4'}`}>
-          <select
-            value={filterBlok}
-            onChange={(e) => setFilterBlok(e.target.value)}
-            className={`px-3 py-2 border border-gray-300 rounded-lg ${isMobile ? 'w-full' : ''}`}
-          >
-            <option value="semua">Semua Blok</option>
-            {getUniqueBloks().map(blok => (
-              <option key={blok} value={blok}>Blok {blok}</option>
-            ))}
-          </select>
+          {/* Hanya tampilkan filter blok jika bukan koordinator atau ada lebih dari 1 blok */}
+          {(user?.jenis !== 'koordinator_perblok' || getUniqueBloks().length > 1) && (
+            <select
+              value={filterBlok}
+              onChange={(e) => setFilterBlok(e.target.value)}
+              className={`px-3 py-2 border border-gray-300 rounded-lg ${isMobile ? 'w-full' : ''}`}
+            >
+              <option value="semua">{user?.jenis === 'koordinator_perblok' ? `Blok ${userBlok}` : 'Semua Blok'}</option>
+              {getUniqueBloks().map(blok => (
+                <option key={blok} value={blok}>Blok {blok}</option>
+              ))}
+            </select>
+          )}
           <select
             value={exportForm.tahun}
             onChange={(e) => setExportForm({...exportForm, tahun: parseInt(e.target.value)})}

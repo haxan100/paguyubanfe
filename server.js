@@ -4,6 +4,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import dotenv from 'dotenv';
+
+dotenv.config();
 import AuthController from './controllers/AuthController.js';
 import AduanController from './controllers/AduanController.js';
 import PostController from './controllers/PostController.js';
@@ -14,6 +17,7 @@ import WargaController from './controllers/WargaController.js';
 import PengeluaranController from './controllers/PengeluaranController.js';
 import BukuKasController from './controllers/BukuKasController.js';
 import DokumenController from './controllers/DokumenController.js';
+import DashboardController from './controllers/DashboardController.js';
 import { verifyToken, checkRole } from './middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -27,7 +31,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"]
   }
 });
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
@@ -94,10 +98,10 @@ app.post('/api/warga', verifyToken, checkRole(['admin', 'ketua', 'koordinator_pe
 app.put('/api/warga/:id', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), WargaController.update);
 app.delete('/api/warga/:id', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), WargaController.delete);
 
-// Payment Admin Routes (Ketua only)
-app.get('/api/admin/payments', verifyToken, checkRole(['ketua']), PaymentAdminController.getAllPayments);
-app.put('/api/admin/payments/:id/confirm', verifyToken, checkRole(['ketua']), PaymentAdminController.confirmPayment);
-app.get('/api/admin/payments/export/:tahun/:bulan', verifyToken, checkRole(['ketua']), PaymentAdminController.exportAllPayments);
+// Payment Admin Routes (Admin, Ketua & Koordinator)
+app.get('/api/admin/payments', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), PaymentAdminController.getAllPayments);
+app.put('/api/admin/payments/:id/confirm', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), PaymentAdminController.confirmPayment);
+app.get('/api/admin/payments/export/:tahun/:bulan', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), PaymentAdminController.exportAllPayments);
 app.get('/api/total-income', verifyToken, PaymentAdminController.getTotalIncome);
 
 // Pengeluaran Routes (Ketua & Admin only)
@@ -118,6 +122,9 @@ app.get('/api/dokumen', verifyToken, DokumenController.getAll);
 app.get('/api/dokumen/kategori', verifyToken, DokumenController.getKategori);
 app.put('/api/dokumen/:id', verifyToken, checkRole(['ketua', 'admin']), DokumenController.update);
 app.delete('/api/dokumen/:id', verifyToken, checkRole(['ketua', 'admin']), DokumenController.delete);
+
+// Dashboard Routes
+app.get('/api/dashboard/koordinator', verifyToken, checkRole(['koordinator_perblok']), DashboardController.getKoordinatorStats);
 
 // Serve uploaded files
 app.use('/assets', express.static('public/assets'));

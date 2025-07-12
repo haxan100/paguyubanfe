@@ -1,10 +1,20 @@
 import Payment from '../models/Payment.js';
 import User from '../models/User.js';
+import Warga from '../models/Warga.js';
 
 class PaymentAdminController {
   static async getAllPayments(req, res) {
     try {
-      const payments = await Payment.findAll();
+      let payments = await Payment.findAll();
+      
+      // Filter untuk koordinator berdasarkan blok
+      if (req.user.jenis === 'koordinator_perblok' && req.user.blok) {
+        const userBlok = req.user.blok.charAt(0);
+        payments = payments.filter(payment => 
+          payment.blok && payment.blok.charAt(0) === userBlok
+        );
+      }
+      
       res.json({ status: 'success', data: payments });
     } catch (error) {
       console.error('Error getting all payments:', error);
@@ -57,8 +67,14 @@ class PaymentAdminController {
     try {
       const { tahun, bulan } = req.params;
       
-      // Get all users
-      const users = await User.findAll();
+      // Get all warga (bukan users)
+      let warga = await Warga.findAll();
+      
+      // Filter untuk koordinator berdasarkan blok
+      if (req.user.jenis === 'koordinator_perblok' && req.user.blok) {
+        const userBlok = req.user.blok.charAt(0);
+        warga = warga.filter(w => w.blok && w.blok.charAt(0) === userBlok);
+      }
       
       // Get payments for specific month/year
       const payments = await Payment.findByMonthYear(tahun, bulan);
@@ -66,12 +82,12 @@ class PaymentAdminController {
       const bulanNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
                          'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
       
-      const exportData = users.map(user => {
-        const payment = payments.find(p => p.user_id === user.id);
+      const exportData = warga.map(w => {
+        const payment = payments.find(p => p.user_id === w.id);
         return {
-          nama: user.nama,
-          blok: user.blok,
-          no_hp: user.no_hp,
+          nama: w.nama,
+          blok: w.blok,
+          no_hp: w.no_hp,
           status: payment ? payment.status : 'belum_bayar',
           bukti: payment ? `/assets/uploads/${payment.bukti_transfer}` : null,
           tanggal_upload: payment ? payment.tanggal_upload : null

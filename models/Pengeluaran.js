@@ -1,11 +1,5 @@
 import mysql from 'mysql2/promise';
-
-const dbConfig = {
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'paguyuban'
-};
+import { dbConfig } from '../config/database.js';
 
 class Pengeluaran {
   static async create({ admin_id, tahun, bulan, jumlah, judul, deskripsi, foto }) {
