@@ -127,9 +127,9 @@ app.delete('/api/dokumen/:id', verifyToken, checkRole(['ketua', 'admin']), Dokum
 // Dashboard Routes
 app.get('/api/dashboard/koordinator', verifyToken, checkRole(['koordinator_perblok']), DashboardController.getKoordinatorStats);
 
-// Warga Profile Routes
-app.put('/api/warga/profile', verifyToken, checkRole(['warga']), WargaProfileController.updateProfile);
-app.put('/api/warga/password', verifyToken, checkRole(['warga']), WargaProfileController.updatePassword);
+// Warga Profile Routes - hanya perlu login, tidak perlu role check khusus
+app.put('/api/warga/profile', verifyToken, WargaProfileController.updateProfile);
+app.put('/api/warga/password', verifyToken, WargaProfileController.updatePassword);
 
 // Serve uploaded files
 app.use('/assets', express.static('public/assets'));

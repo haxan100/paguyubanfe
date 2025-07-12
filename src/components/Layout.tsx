@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { menuConfig } from '../config/menu.js';
+import { menuConfig } from '../../config/menu.js';
 import { 
   Home, 
   MessageCircle, 
@@ -40,15 +40,22 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
     
     switch (user?.role) {
       case 'warga':
-        return [
-          ...baseItems,
-          { id: 'profile-warga', label: 'Profile Saya', icon: User },
+        const wargaItems = [...baseItems];
+        
+        // Tambahkan menu Profile jika enabled
+        if (menuConfig.profile.enabled) {
+          wargaItems.push({ id: 'profile-warga', label: menuConfig.profile.title, icon: User });
+        }
+        
+        wargaItems.push(
           { id: 'aduan-saya', label: 'Aduan Saya', icon: MessageCircle },
           { id: 'payments', label: 'Pembayaran', icon: CreditCard },
           { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
           { id: 'buku-kas', label: 'Buku Kas', icon: BookOpen },
           { id: 'dokumen', label: 'Dokumen', icon: FileText }
-        ];
+        );
+        
+        return wargaItems;
       case 'koordinator_perblok':
         return [
           ...baseItems,
@@ -92,8 +99,9 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-xl transition-colors duration-300">
-        <div className="flex flex-col h-full">
+      {menuConfig.sidebar.enabled && (
+        <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-xl transition-colors duration-300">
+          <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-center h-16 px-4 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800">
             <h1 className="text-xl font-bold text-white">Sistem Komunitas</h1>
@@ -163,11 +171,12 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
               <span className="font-medium">Keluar</span>
             </button>
           </div>
+          </div>
         </div>
-      </div>
+      )}
       
       {/* Main Content */}
-      <div className="ml-64">
+      <div className={menuConfig.sidebar.enabled ? 'ml-64' : 'ml-0'}>
         <div className="p-8">
           {children}
         </div>

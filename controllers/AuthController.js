@@ -54,6 +54,7 @@ class AuthController {
           id: user.id,
           nama: user.nama,
           email: user.email,
+          no_hp: user.no_hp,
           jenis: isWarga ? 'warga' : user.jenis,
           blok: user.blok
         }

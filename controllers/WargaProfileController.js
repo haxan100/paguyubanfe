@@ -7,11 +7,18 @@ class WargaProfileController {
       const { nama, email, no_hp, blok } = req.body;
       const wargaId = req.user.id;
       
+      console.log('=== UPDATE PROFILE DEBUG ===');
+      console.log('User from token:', req.user);
+      console.log('Warga ID:', wargaId);
+      console.log('Update data:', { nama, email, no_hp, blok });
+      console.log('=== END DEBUG ===');
+      
       await Warga.update(wargaId, { nama, email, no_hp, blok });
       
       res.json({ 
         status: 'success', 
-        message: 'Profile berhasil diupdate' 
+        message: 'Profile berhasil diupdate',
+        data: { nama, email, no_hp, blok }
       });
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -26,6 +33,11 @@ class WargaProfileController {
     try {
       const { currentPassword, newPassword } = req.body;
       const wargaId = req.user.id;
+      
+      console.log('=== UPDATE PASSWORD DEBUG ===');
+      console.log('User from token:', req.user);
+      console.log('Warga ID:', wargaId);
+      console.log('=== END DEBUG ===');
       
       // Get current warga data
       const warga = await Warga.findById(wargaId);

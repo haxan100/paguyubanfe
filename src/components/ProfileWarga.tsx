@@ -3,6 +3,7 @@ import { User, Lock, Save } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { apiRequest } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
+import PasswordInput from './PasswordInput';
 
 export default function ProfileWarga() {
   const { user, updateUser } = useAuth();
@@ -13,6 +14,8 @@ export default function ProfileWarga() {
     no_hp: user?.no_hp || '',
     blok: user?.blok || ''
   });
+  
+  console.log('User data:', user); // Debug log
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -30,7 +33,8 @@ export default function ProfileWarga() {
 
       const result = await response.json();
       if (result.status === 'success') {
-        updateUser({ ...user, ...profileData });
+        const updatedUser = { ...user, ...profileData };
+        updateUser(updatedUser);
         Swal.fire({
           icon: 'success',
           title: 'Berhasil!',
@@ -38,6 +42,8 @@ export default function ProfileWarga() {
           timer: 2000,
           showConfirmButton: false
         });
+      } else {
+        throw new Error(result.message);
       }
     } catch (error) {
       Swal.fire({
@@ -186,22 +192,22 @@ export default function ProfileWarga() {
           <form onSubmit={handlePasswordUpdate} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Password Lama</label>
-              <input
-                type="password"
+              <PasswordInput
                 value={passwordData.currentPassword}
-                onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
+                onChange={(value) => setPasswordData({...passwordData, currentPassword: value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                placeholder="Masukkan password lama"
                 required
               />
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
-              <input
-                type="password"
+              <PasswordInput
                 value={passwordData.newPassword}
-                onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
+                onChange={(value) => setPasswordData({...passwordData, newPassword: value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                placeholder="Masukkan password baru (min 6 karakter)"
                 required
                 minLength={6}
               />
@@ -209,11 +215,11 @@ export default function ProfileWarga() {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password Baru</label>
-              <input
-                type="password"
+              <PasswordInput
                 value={passwordData.confirmPassword}
-                onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                onChange={(value) => setPasswordData({...passwordData, confirmPassword: value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                placeholder="Konfirmasi password baru"
                 required
                 minLength={6}
               />
