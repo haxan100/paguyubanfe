@@ -27,6 +27,19 @@ class User {
     return rows[0];
   }
 
+  static async findByJenis(jenisArray) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const placeholders = jenisArray.map(() => '?').join(',');
+    const [rows] = await connection.execute(
+      `SELECT * FROM users WHERE jenis IN (${placeholders}) ORDER BY jenis, nama`,
+      jenisArray
+    );
+    
+    await connection.end();
+    return rows;
+  }
+
   static async findById(id) {
     const connection = await mysql.createConnection(dbConfig);
     

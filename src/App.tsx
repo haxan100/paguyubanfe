@@ -32,6 +32,7 @@ import About from './components/About';
 import Dokumen from './components/Dokumen';
 import KelolaWargaAdmin from './components/KelolaWargaAdmin';
 import ProfileWarga from './components/ProfileWarga';
+import KelolaPerangkat from './components/KelolaPerangkat';
 
 function AppContent() {
   const { user } = useAuth();
@@ -114,6 +115,8 @@ function AppContent() {
         return <KelolaWargaAdmin />;
       case 'profile-warga':
         return <ProfileWarga />;
+      case 'kelola-perangkat':
+        return <KelolaPerangkat />;
       default:
         if (user?.jenis === 'ketua') return <KetuaDashboard />;
         if (user?.jenis === 'koordinator_perblok') return <KoordinatorDashboard />;

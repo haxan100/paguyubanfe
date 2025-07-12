@@ -19,6 +19,7 @@ import BukuKasController from './controllers/BukuKasController.js';
 import DokumenController from './controllers/DokumenController.js';
 import DashboardController from './controllers/DashboardController.js';
 import WargaProfileController from './controllers/WargaProfileController.js';
+import PerangkatController from './controllers/PerangkatController.js';
 import { verifyToken, checkRole } from './middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -91,6 +92,12 @@ app.get('/api/payments/export/:tahun', verifyToken, PaymentController.exportPaym
 
 // User Management Routes (Ketua & Koordinator)
 app.get('/api/users/role/:role', verifyToken, checkRole(['ketua']), UserController.getByRole);
+
+// Perangkat Management Routes (Ketua only)
+app.get('/api/users/perangkat', verifyToken, checkRole(['ketua']), PerangkatController.getAll);
+app.post('/api/users', verifyToken, checkRole(['ketua']), PerangkatController.create);
+app.put('/api/users/:id', verifyToken, checkRole(['ketua']), PerangkatController.update);
+app.delete('/api/users/:id', verifyToken, checkRole(['ketua']), PerangkatController.delete);
 
 // Warga Management Routes (Admin, Ketua & Koordinator)
 app.get('/api/warga', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), WargaController.getAll);
