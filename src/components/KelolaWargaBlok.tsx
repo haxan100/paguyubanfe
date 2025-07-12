@@ -5,49 +5,47 @@ import { apiRequest } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
 import PasswordInput from './PasswordInput';
 
-interface UserData {
+interface WargaData {
   id: number;
   nama: string;
   email: string;
   no_hp: string;
   blok: string;
-  jenis: string;
   created_at: string;
 }
 
 export default function KelolaWargaBlok() {
   const { user } = useAuth();
-  const [users, setUsers] = useState<UserData[]>([]);
+  const [warga, setWarga] = useState<WargaData[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [editingUser, setEditingUser] = useState<UserData | null>(null);
-  const [userForm, setUserForm] = useState({
+  const [editingWarga, setEditingWarga] = useState<WargaData | null>(null);
+  const [wargaForm, setWargaForm] = useState({
     nama: '',
     email: '',
     no_hp: '',
     blok: '',
-    jenis: 'warga',
     password: ''
   });
 
   const userBlok = user?.blok?.charAt(0); // Ambil huruf pertama blok
 
   useEffect(() => {
-    fetchUsers();
+    fetchWarga();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchWarga = async () => {
     try {
-      const response = await apiRequest('/api/users');
+      const response = await apiRequest('/api/warga');
       const result = await response.json();
       if (result.status === 'success') {
         // Filter hanya warga di blok yang sama
-        const filteredUsers = result.data.filter((u: UserData) => 
-          u.jenis === 'warga' && u.blok?.charAt(0) === userBlok
+        const filteredWarga = result.data.filter((w: WargaData) => 
+          w.blok?.charAt(0) === userBlok
         );
-        setUsers(filteredUsers);
+        setWarga(filteredWarga);
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching warga:', error);
     }
   };
 
@@ -55,7 +53,7 @@ export default function KelolaWargaBlok() {
     e.preventDefault();
     
     // Validasi blok di frontend
-    const targetBlok = userForm.blok?.charAt(0);
+    const targetBlok = wargaForm.blok?.charAt(0);
     if (targetBlok !== userBlok) {
       Swal.fire({
         icon: 'error',
@@ -66,25 +64,25 @@ export default function KelolaWargaBlok() {
     }
     
     try {
-      const url = editingUser ? `/api/users/${editingUser.id}` : '/api/users';
-      const method = editingUser ? 'PUT' : 'POST';
+      const url = editingWarga ? `/api/warga/${editingWarga.id}` : '/api/warga';
+      const method = editingWarga ? 'PUT' : 'POST';
       
       const response = await apiRequest(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userForm)
+        body: JSON.stringify(wargaForm)
       });
 
       const result = await response.json();
       if (result.status === 'success') {
         setShowModal(false);
-        setEditingUser(null);
-        setUserForm({ nama: '', email: '', no_hp: '', blok: '', jenis: 'warga', password: '' });
-        fetchUsers();
+        setEditingWarga(null);
+        setWargaForm({ nama: '', email: '', no_hp: '', blok: '', password: '' });
+        fetchWarga();
         Swal.fire({
           icon: 'success',
           title: 'Berhasil!',
-          text: editingUser ? 'Warga berhasil diupdate' : 'Warga berhasil ditambahkan',
+          text: editingWarga ? 'Warga berhasil diupdate' : 'Warga berhasil ditambahkan',
           timer: 2000,
           showConfirmButton: false
         });
@@ -114,10 +112,10 @@ export default function KelolaWargaBlok() {
 
     if (result.isConfirmed) {
       try {
-        const response = await apiRequest(`/api/users/${id}`, { method: 'DELETE' });
+        const response = await apiRequest(`/api/warga/${id}`, { method: 'DELETE' });
         const data = await response.json();
         if (data.status === 'success') {
-          fetchUsers();
+          fetchWarga();
           Swal.fire({
             icon: 'success',
             title: 'Berhasil!',
@@ -165,31 +163,30 @@ export default function KelolaWargaBlok() {
       {isMobile ? (
         // Mobile Card Layout
         <div className="space-y-4">
-          {users.map((user) => (
-            <div key={user.id} className="bg-white rounded-lg p-4 shadow border">
+          {warga.map((wargaItem) => (
+            <div key={wargaItem.id} className="bg-white rounded-lg p-4 shadow border">
               <div className="flex justify-between items-start mb-2">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{user.nama}</h3>
-                  <p className="text-sm text-gray-600">{user.email}</p>
+                  <h3 className="font-semibold text-gray-900">{wargaItem.nama}</h3>
+                  <p className="text-sm text-gray-600">{wargaItem.email}</p>
                 </div>
                 <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                   Warga
                 </span>
               </div>
               <div className="text-sm text-gray-600 mb-3">
-                <p>HP: {user.no_hp}</p>
-                <p>Blok: {user.blok}</p>
+                <p>HP: {wargaItem.no_hp}</p>
+                <p>Blok: {wargaItem.blok}</p>
               </div>
               <div className="flex space-x-2">
                 <button
                   onClick={() => {
-                    setEditingUser(user);
-                    setUserForm({
-                      nama: user.nama,
-                      email: user.email,
-                      no_hp: user.no_hp,
-                      blok: user.blok,
-                      jenis: user.jenis,
+                    setEditingWarga(wargaItem);
+                    setWargaForm({
+                      nama: wargaItem.nama,
+                      email: wargaItem.email,
+                      no_hp: wargaItem.no_hp,
+                      blok: wargaItem.blok,
                       password: ''
                     });
                     setShowModal(true);
@@ -200,7 +197,7 @@ export default function KelolaWargaBlok() {
                   <span>Edit</span>
                 </button>
                 <button
-                  onClick={() => handleDelete(user.id)}
+                  onClick={() => handleDelete(wargaItem.id)}
                   className="flex-1 flex items-center justify-center space-x-1 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
                 >
                   <Trash2 size={14} />
@@ -224,22 +221,21 @@ export default function KelolaWargaBlok() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.nama}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.no_hp}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.blok}</td>
+              {warga.map((wargaItem) => (
+                <tr key={wargaItem.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{wargaItem.nama}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{wargaItem.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{wargaItem.no_hp}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{wargaItem.blok}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button
                       onClick={() => {
-                        setEditingUser(user);
-                        setUserForm({
-                          nama: user.nama,
-                          email: user.email,
-                          no_hp: user.no_hp,
-                          blok: user.blok,
-                          jenis: user.jenis,
+                        setEditingWarga(wargaItem);
+                        setWargaForm({
+                          nama: wargaItem.nama,
+                          email: wargaItem.email,
+                          no_hp: wargaItem.no_hp,
+                          blok: wargaItem.blok,
                           password: ''
                         });
                         setShowModal(true);
@@ -249,7 +245,7 @@ export default function KelolaWargaBlok() {
                       <Edit size={16} />
                     </button>
                     <button
-                      onClick={() => handleDelete(user.id)}
+                      onClick={() => handleDelete(wargaItem.id)}
                       className="text-red-600 hover:text-red-900"
                     >
                       <Trash2 size={16} />
@@ -262,7 +258,7 @@ export default function KelolaWargaBlok() {
         </div>
       )}
 
-      {users.length === 0 && (
+      {warga.length === 0 && (
         <div className="text-center py-8">
           <p className="text-gray-500">Belum ada warga di Blok {userBlok}</p>
         </div>
@@ -273,47 +269,47 @@ export default function KelolaWargaBlok() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className={`bg-white rounded-lg p-6 w-full ${isMobile ? 'max-w-sm' : 'max-w-md'}`}>
             <h3 className="text-lg font-semibold mb-4">
-              {editingUser ? 'Edit Warga' : 'Tambah Warga'}
+              {editingWarga ? 'Edit Warga' : 'Tambah Warga'}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="text"
                 placeholder="Nama"
-                value={userForm.nama}
-                onChange={(e) => setUserForm({...userForm, nama: e.target.value})}
+                value={wargaForm.nama}
+                onChange={(e) => setWargaForm({...wargaForm, nama: e.target.value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 required
               />
               <input
                 type="email"
                 placeholder="Email"
-                value={userForm.email}
-                onChange={(e) => setUserForm({...userForm, email: e.target.value})}
+                value={wargaForm.email}
+                onChange={(e) => setWargaForm({...wargaForm, email: e.target.value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 required
               />
               <input
                 type="text"
                 placeholder="No HP"
-                value={userForm.no_hp}
-                onChange={(e) => setUserForm({...userForm, no_hp: e.target.value})}
+                value={wargaForm.no_hp}
+                onChange={(e) => setWargaForm({...wargaForm, no_hp: e.target.value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 required
               />
               <input
                 type="text"
                 placeholder={`Blok (contoh: ${userBlok}1-1, ${userBlok}2-5)`}
-                value={userForm.blok}
-                onChange={(e) => setUserForm({...userForm, blok: e.target.value})}
+                value={wargaForm.blok}
+                onChange={(e) => setWargaForm({...wargaForm, blok: e.target.value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 required
               />
               <PasswordInput
-                value={userForm.password}
-                onChange={(value) => setUserForm({...userForm, password: value})}
-                placeholder={editingUser ? "Password (kosongkan jika tidak diubah)" : "Password"}
+                value={wargaForm.password}
+                onChange={(value) => setWargaForm({...wargaForm, password: value})}
+                placeholder={editingWarga ? "Password (kosongkan jika tidak diubah)" : "Password"}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                required={!editingUser}
+                required={!editingWarga}
               />
               
               <div className="flex space-x-2">
@@ -321,14 +317,14 @@ export default function KelolaWargaBlok() {
                   type="submit"
                   className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
                 >
-                  {editingUser ? 'Update' : 'Simpan'}
+                  {editingWarga ? 'Update' : 'Simpan'}
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setShowModal(false);
-                    setEditingUser(null);
-                    setUserForm({ nama: '', email: '', no_hp: '', blok: '', jenis: 'warga', password: '' });
+                    setEditingWarga(null);
+                    setWargaForm({ nama: '', email: '', no_hp: '', blok: '', password: '' });
                   }}
                   className="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600"
                 >
