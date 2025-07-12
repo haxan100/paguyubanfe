@@ -160,3 +160,4 @@ Jika mendapat error saat login:
 ## 📄 Lisensi
 
 Proyek ini dilisensikan di bawah MIT License.
+lsof -ti:3001 | xargs kill -9

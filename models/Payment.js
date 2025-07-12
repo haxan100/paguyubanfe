@@ -144,6 +144,21 @@ class Payment {
     
     await connection.end();
   }
+
+  static async findByYear(tahun) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [rows] = await connection.execute(`
+      SELECT p.*, u.nama 
+      FROM payments p 
+      JOIN users u ON p.user_id = u.id 
+      WHERE p.tahun = ? AND p.status = 'dikonfirmasi'
+      ORDER BY p.tanggal_konfirmasi DESC
+    `, [tahun]);
+    
+    await connection.end();
+    return rows;
+  }
 }
 
 export default Payment;

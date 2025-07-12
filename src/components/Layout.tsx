@@ -14,7 +14,10 @@ import {
   Sun,
   Moon,
   FileText,
-  Newspaper
+  Newspaper,
+  TrendingDown,
+  BookOpen,
+  Info
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -40,14 +43,19 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
           ...baseItems,
           { id: 'aduan-saya', label: 'Aduan Saya', icon: MessageCircle },
           { id: 'payments', label: 'Pembayaran', icon: CreditCard },
-          { id: 'documents', label: 'Dokumen', icon: FileText }
+          { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
+          { id: 'buku-kas', label: 'Buku Kas', icon: BookOpen },
+          { id: 'dokumen', label: 'Dokumen', icon: FileText }
         ];
       case 'koordinator_perblok':
         return [
           ...baseItems,
           { id: 'kelola-warga-blok', label: 'Kelola Warga', icon: Users },
           { id: 'aduan-warga', label: 'Aduan Warga', icon: MessageCircle },
-          { id: 'pembayaran-warga', label: 'Pembayaran Warga', icon: CreditCard }
+          { id: 'pembayaran-warga', label: 'Pembayaran Warga', icon: CreditCard },
+          { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
+          { id: 'buku-kas', label: 'Buku Kas', icon: BookOpen },
+          { id: 'dokumen', label: 'Dokumen', icon: FileText }
         ];
       case 'admin':
         const adminItems = [...baseItems];
@@ -56,8 +64,10 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
         }
         adminItems.push(
           { id: 'payments-admin', label: 'Data Pembayaran', icon: CreditCard },
-          { id: 'users', label: 'Kelola User', icon: Users },
-          { id: 'document-management', label: 'Kelola Dokumen', icon: FileText }
+          { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
+          { id: 'buku-kas', label: 'Buku Kas', icon: BookOpen },
+          { id: 'dokumen', label: 'Dokumen', icon: FileText },
+          { id: 'users', label: 'Kelola User', icon: Users }
         );
         return adminItems;
       case 'ketua':
@@ -65,7 +75,10 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
           ...baseItems,
           { id: 'kelola-warga', label: 'Kelola Warga', icon: Users },
           { id: 'aduan-warga', label: 'Aduan Warga', icon: MessageCircle },
-          { id: 'pembayaran-warga', label: 'Pembayaran Warga', icon: CreditCard }
+          { id: 'pembayaran-warga', label: 'Pembayaran Warga', icon: CreditCard },
+          { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
+          { id: 'buku-kas', label: 'Buku Kas', icon: BookOpen },
+          { id: 'dokumen', label: 'Dokumen', icon: FileText }
         ];
       default:
         return baseItems;
@@ -118,8 +131,19 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
             ))}
           </nav>
           
-          {/* Theme Toggle & Logout */}
+          {/* About & Theme Toggle & Logout */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+            <button
+              onClick={() => onPageChange('about')}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                currentPage === 'about'
+                  ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <Info size={20} />
+              <span className="font-medium">Tentang</span>
+            </button>
             <button
               onClick={toggleTheme}
               className="w-full flex items-center space-x-3 px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors"

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Home, MessageCircle, CreditCard, Newspaper, User, Users } from 'lucide-react';
+import { Home, MessageCircle, CreditCard, Newspaper, User, Users, TrendingDown, BookOpen, Info } from 'lucide-react';
 
 interface MobileLayoutProps {
   children: React.ReactNode;
@@ -18,7 +18,9 @@ export default function MobileLayout({ children, currentPage, onPageChange }: Mo
         { id: 'info-warga', label: 'Info', icon: Newspaper },
         { id: 'kelola-warga', label: 'Kelola', icon: Users },
         { id: 'aduan-warga', label: 'Aduan', icon: MessageCircle },
-        { id: 'pembayaran-warga', label: 'Bayar', icon: CreditCard }
+        { id: 'pembayaran-warga', label: 'Bayar', icon: CreditCard },
+        { id: 'pengeluaran', label: 'Keluar', icon: TrendingDown },
+        { id: 'buku-kas', label: 'Kas', icon: BookOpen }
       ];
     }
     if (user?.jenis === 'koordinator_perblok') {
@@ -27,7 +29,9 @@ export default function MobileLayout({ children, currentPage, onPageChange }: Mo
         { id: 'info-warga', label: 'Info', icon: Newspaper },
         { id: 'kelola-warga-blok', label: 'Kelola', icon: Users },
         { id: 'aduan-warga', label: 'Aduan', icon: MessageCircle },
-        { id: 'pembayaran-warga', label: 'Bayar', icon: CreditCard }
+        { id: 'pembayaran-warga', label: 'Bayar', icon: CreditCard },
+        { id: 'pengeluaran', label: 'Keluar', icon: TrendingDown },
+        { id: 'buku-kas', label: 'Kas', icon: BookOpen }
       ];
     }
     return [
@@ -35,6 +39,9 @@ export default function MobileLayout({ children, currentPage, onPageChange }: Mo
       { id: 'info-warga', label: 'Info', icon: Newspaper },
       { id: 'aduan-saya', label: 'Aduan', icon: MessageCircle },
       { id: 'payments', label: 'Bayar', icon: CreditCard },
+      { id: 'pengeluaran', label: 'Keluar', icon: TrendingDown },
+      { id: 'buku-kas', label: 'Kas', icon: BookOpen },
+      { id: 'about', label: 'About', icon: Info },
       { id: 'profile', label: 'Profile', icon: User }
     ];
   };
@@ -61,7 +68,7 @@ export default function MobileLayout({ children, currentPage, onPageChange }: Mo
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-8 overflow-x-auto">
           {menuItems.map((item) => (
             <button
               key={item.id}

@@ -10,6 +10,9 @@ import PostController from './controllers/PostController.js';
 import PaymentController from './controllers/PaymentController.js';
 import PaymentAdminController from './controllers/PaymentAdminController.js';
 import UserController from './controllers/UserController.js';
+import PengeluaranController from './controllers/PengeluaranController.js';
+import BukuKasController from './controllers/BukuKasController.js';
+import DokumenController from './controllers/DokumenController.js';
 import { verifyToken, checkRole } from './middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -80,12 +83,13 @@ app.put('/api/payments/:id/status', verifyToken, checkRole(['admin', 'ketua', 'k
 app.delete('/api/payments/:id', verifyToken, PaymentController.delete);
 app.get('/api/payments/export/:tahun', verifyToken, PaymentController.exportPayments);
 
-// User Management Routes (Ketua & Koordinator)
-app.get('/api/users', verifyToken, checkRole(['ketua', 'koordinator_perblok']), UserController.getAll);
+// User Management Routes (Admin, Ketua & Koordinator)
+app.get('/api/users', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), UserController.getAll);
+app.get('/api/users/blok', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), UserController.getBlokList);
 app.get('/api/users/role/:role', verifyToken, checkRole(['ketua']), UserController.getByRole);
-app.post('/api/users', verifyToken, checkRole(['ketua', 'koordinator_perblok']), UserController.create);
-app.put('/api/users/:id', verifyToken, checkRole(['ketua', 'koordinator_perblok']), UserController.update);
-app.delete('/api/users/:id', verifyToken, checkRole(['ketua', 'koordinator_perblok']), UserController.delete);
+app.post('/api/users', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), UserController.create);
+app.put('/api/users/:id', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), UserController.update);
+app.delete('/api/users/:id', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), UserController.delete);
 
 // Payment Admin Routes (Ketua only)
 app.get('/api/admin/payments', verifyToken, checkRole(['ketua']), PaymentAdminController.getAllPayments);
@@ -93,8 +97,28 @@ app.put('/api/admin/payments/:id/confirm', verifyToken, checkRole(['ketua']), Pa
 app.get('/api/admin/payments/export/:tahun/:bulan', verifyToken, checkRole(['ketua']), PaymentAdminController.exportAllPayments);
 app.get('/api/total-income', verifyToken, PaymentAdminController.getTotalIncome);
 
+// Pengeluaran Routes (Ketua & Admin only)
+app.post('/api/pengeluaran', verifyToken, checkRole(['ketua', 'admin']), PengeluaranController.upload.single('foto'), PengeluaranController.create);
+app.get('/api/pengeluaran', verifyToken, PengeluaranController.getAll);
+app.get('/api/pengeluaran/year/:tahun', verifyToken, PengeluaranController.getByYear);
+app.delete('/api/pengeluaran/:id', verifyToken, checkRole(['ketua', 'admin']), PengeluaranController.delete);
+app.get('/api/pengeluaran/export/:tahun', verifyToken, PengeluaranController.exportPengeluaran);
+
+// Buku Kas Routes
+app.get('/api/buku-kas/saldo', verifyToken, BukuKasController.getSaldo);
+app.get('/api/buku-kas/:tahun', verifyToken, BukuKasController.getBukuKas);
+app.get('/api/buku-kas/export/:tahun', verifyToken, BukuKasController.exportBukuKas);
+
+// Dokumen Routes
+app.post('/api/dokumen', verifyToken, checkRole(['ketua', 'admin']), DokumenController.upload.single('file'), DokumenController.create);
+app.get('/api/dokumen', verifyToken, DokumenController.getAll);
+app.get('/api/dokumen/kategori', verifyToken, DokumenController.getKategori);
+app.put('/api/dokumen/:id', verifyToken, checkRole(['ketua', 'admin']), DokumenController.update);
+app.delete('/api/dokumen/:id', verifyToken, checkRole(['ketua', 'admin']), DokumenController.delete);
+
 // Serve uploaded files
 app.use('/assets', express.static('public/assets'));
+app.use('/documents', express.static('public/assets/documents'));
 
 // Serve React app
 app.get('*', (req, res) => {

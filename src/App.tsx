@@ -25,6 +25,12 @@ import AduanWarga from './components/AduanWarga';
 import PembayaranWarga from './components/PembayaranWarga';
 import KoordinatorDashboard from './components/KoordinatorDashboard';
 import KelolaWargaBlok from './components/KelolaWargaBlok';
+import Pengeluaran from './components/Pengeluaran';
+import BukuKas from './components/BukuKas';
+import Profile from './components/Profile';
+import About from './components/About';
+import Dokumen from './components/Dokumen';
+import KelolaWargaAdmin from './components/KelolaWargaAdmin';
 
 function AppContent() {
   const { user } = useAuth();
@@ -93,6 +99,18 @@ function AppContent() {
         return <PembayaranWarga />;
       case 'kelola-warga-blok':
         return <KelolaWargaBlok />;
+      case 'pengeluaran':
+        return <Pengeluaran />;
+      case 'buku-kas':
+        return <BukuKas />;
+      case 'profile':
+        return <Profile />;
+      case 'about':
+        return <About />;
+      case 'dokumen':
+        return <Dokumen />;
+      case 'kelola-warga-admin':
+        return <KelolaWargaAdmin />;
       default:
         if (user?.jenis === 'ketua') return <KetuaDashboard />;
         if (user?.jenis === 'koordinator_perblok') return <KoordinatorDashboard />;

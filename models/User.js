@@ -90,6 +90,40 @@ class User {
     
     await connection.end();
   }
+
+  static async findWarga() {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [rows] = await connection.execute(
+      'SELECT id, nama, email, no_hp, blok, jenis, created_at FROM users WHERE jenis = "warga" ORDER BY blok, nama'
+    );
+    
+    await connection.end();
+    return rows;
+  }
+
+  static async findByBlok(blok) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [rows] = await connection.execute(
+      'SELECT id, nama, email, no_hp, blok, jenis, created_at FROM users WHERE jenis = "warga" AND blok = ? ORDER BY nama',
+      [blok]
+    );
+    
+    await connection.end();
+    return rows;
+  }
+
+  static async getBlokList() {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [rows] = await connection.execute(
+      'SELECT DISTINCT blok FROM users WHERE jenis = "warga" AND blok IS NOT NULL ORDER BY blok'
+    );
+    
+    await connection.end();
+    return rows.map(row => row.blok);
+  }
 }
 
 export default User;
