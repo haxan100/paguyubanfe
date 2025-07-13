@@ -68,18 +68,15 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
           { id: 'dokumen', label: 'Dokumen', icon: FileText }
         ];
       case 'admin':
-        const adminItems = [...baseItems];
-        if (settings.complaintMenuEnabled) {
-          adminItems.push({ id: 'complaints', label: 'Kelola Aduan', icon: MessageCircle });
-        }
-        adminItems.push(
+        return [
+          ...baseItems,
+          { id: 'kelola-warga', label: 'Kelola Warga', icon: Users },
+          { id: 'complaints', label: 'Kelola Aduan', icon: MessageCircle },
           { id: 'payments-admin', label: 'Data Pembayaran', icon: CreditCard },
           { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
           { id: 'buku-kas', label: 'Buku Kas', icon: BookOpen },
-          { id: 'dokumen', label: 'Dokumen', icon: FileText },
-          { id: 'kelola-warga-admin', label: 'Kelola Warga', icon: Users }
-        );
-        return adminItems;
+          { id: 'dokumen', label: 'Dokumen', icon: FileText }
+        ];
       case 'ketua':
         return [
           ...baseItems,
