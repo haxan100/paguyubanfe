@@ -9,6 +9,7 @@ interface Payment {
   nama: string;
   blok: string;
   no_hp: string;
+  jumlah: number;
   status: string;
   bukti_transfer: string;
   tanggal_upload: string;
@@ -226,6 +227,9 @@ export default function PembayaranWarga() {
                 <h3 className={`font-semibold text-gray-900 ${isMobile ? 'text-base' : 'text-lg'}`}>{payment.nama}</h3>
                 <p className={`text-gray-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>
                   Blok {payment.blok} • {payment.no_hp}
+                </p>
+                <p className={`font-semibold text-blue-600 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                  Rp {payment.jumlah?.toLocaleString('id-ID') || '0'}
                 </p>
                 <p className={`text-gray-500 ${isMobile ? 'text-xs' : 'text-sm'}`}>
                   {new Date(payment.tanggal_upload).toLocaleDateString('id-ID')}
