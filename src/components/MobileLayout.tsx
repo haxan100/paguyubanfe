@@ -53,7 +53,7 @@ export default function MobileLayout({ children, currentPage, onPageChange }: Mo
       {/* Header */}
       <div className="bg-blue-600 text-white p-4 sticky top-0 z-40">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold">Paguyuban</h1>
+          <h1 className="text-lg font-semibold">Graha Padjajaran</h1>
           <div className="text-sm">
             <p>{user?.nama}</p>
             <p className="text-blue-200 text-xs">Blok {user?.blok}</p>

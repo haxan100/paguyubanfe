@@ -147,7 +147,7 @@ export default function KelolaWarga() {
       <div className="flex justify-between items-center">
         <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900`}>Kelola Warga</h1>
         <div className="flex space-x-4">
-          {user?.jenis === 'ketua' && (
+          {(user?.jenis === 'ketua' || user?.jenis === 'admin') && (
             <div className="flex items-center space-x-2">
               <Filter size={16} className="text-gray-500" />
               <select

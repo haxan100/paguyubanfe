@@ -103,7 +103,14 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
           <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-center h-16 px-4 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800">
-            <h1 className="text-xl font-bold text-white">Sistem Komunitas</h1>
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/assets/logo-graha-padjajaran.png" 
+                alt="Graha Padjajaran" 
+                className="h-10 w-auto"
+              />
+              <h1 className="text-lg font-bold text-white">Graha Padjajaran</h1>
+            </div>
           </div>
           
           {/* User Info */}
