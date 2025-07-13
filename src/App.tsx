@@ -72,13 +72,13 @@ function AppContent() {
       case 'aduan-saya':
         return <AduanSaya />;
       case 'complaints':
-        return <ComplaintList />;
+        return <AduanWarga />;
       case 'payments':
         return <PaymentWarga />;
       case 'verify-payments':
         return <PaymentVerification />;
       case 'payments-admin':
-        return <PaymentList />;
+        return <PembayaranWarga />;
       case 'users':
         return <UserManagement />;
       case 'residents':
