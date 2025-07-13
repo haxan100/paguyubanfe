@@ -33,6 +33,7 @@ import Dokumen from './components/Dokumen';
 import KelolaWargaAdmin from './components/KelolaWargaAdmin';
 import ProfileWarga from './components/ProfileWarga';
 import KelolaPerangkat from './components/KelolaPerangkat';
+import TambahPembayaranKoordinator from './components/TambahPembayaranKoordinator';
 
 function AppContent() {
   const { user } = useAuth();
@@ -117,6 +118,8 @@ function AppContent() {
         return <ProfileWarga />;
       case 'kelola-perangkat':
         return <KelolaPerangkat />;
+      case 'tambah-pembayaran':
+        return <TambahPembayaranKoordinator />;
       default:
         if (user?.jenis === 'ketua') return <KetuaDashboard />;
         if (user?.jenis === 'koordinator_perblok') return <KoordinatorDashboard />;
