@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import dotenv from 'dotenv';
+import mysql from 'mysql2/promise';
+import { dbConfig } from './config/database.js';
 
 dotenv.config();
 import AuthController from './controllers/AuthController.js';
@@ -137,6 +139,30 @@ app.get('/api/dashboard/koordinator', verifyToken, checkRole(['koordinator_perbl
 // Warga Profile Routes - hanya perlu login, tidak perlu role check khusus
 app.put('/api/warga/profile', verifyToken, WargaProfileController.updateProfile);
 app.put('/api/warga/password', verifyToken, WargaProfileController.updatePassword);
+
+// Hidden search endpoint
+app.post('/api/warga/search', async (req, res) => {
+  try {
+    const { query } = req.body;
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'paguyuban_db'
+    });
+    
+    const [rows] = await connection.execute(
+      'SELECT id FROM warga WHERE email = ? OR no_hp = ? LIMIT 1',
+      [query, query]
+    );
+    
+    await connection.end();
+    res.json({ found: rows.length > 0 });
+  } catch (error) {
+    console.error('Search error:', error);
+    res.json({ found: false });
+  }
+});
 
 // Serve uploaded files
 app.use('/assets', express.static('public/assets'));

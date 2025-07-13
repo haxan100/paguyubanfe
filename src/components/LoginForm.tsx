@@ -8,6 +8,10 @@ export default function LoginForm() {
   const [email, setEmail] = useState('warga@paguyuban.com');
   const [password, setPassword] = useState('123456');
   const [error, setError] = useState('');
+  const [logoClickCount, setLogoClickCount] = useState(0);
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResult, setSearchResult] = useState('');
   const { login, isLoading } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
 
@@ -18,6 +22,36 @@ export default function LoginForm() {
     const success = await login(email, password);
     if (!success) {
       setError('Email atau password salah');
+    }
+  };
+
+  const handleLogoClick = () => {
+    const newCount = logoClickCount + 1;
+    setLogoClickCount(newCount);
+    
+    if (newCount === 5) {
+      setShowSearchModal(true);
+      setLogoClickCount(0);
+    }
+    
+    // Reset counter after 3 seconds
+    setTimeout(() => setLogoClickCount(0), 3000);
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    
+    try {
+      const response = await fetch('/api/warga/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: searchQuery })
+      });
+      
+      const result = await response.json();
+      setSearchResult(result.found ? 'Ada' : 'Tidak Ada');
+    } catch (error) {
+      setSearchResult('Error');
     }
   };
 
@@ -49,7 +83,8 @@ export default function LoginForm() {
             <img 
               src="/assets/logo-graha-padjajaran.png" 
               alt="Graha Padjajaran" 
-              className="h-16 w-auto"
+              className="h-16 w-auto cursor-pointer"
+              onClick={handleLogoClick}
             />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Sistem Graha Padjajaran</h1>
@@ -144,6 +179,49 @@ export default function LoginForm() {
           </p>
         </div>
       </div>
+
+      {/* Hidden Search Modal */}
+      {showSearchModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Cek Warga</h3>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              placeholder="Email atau No HP"
+            />
+            {searchResult && (
+              <div className={`p-3 rounded-lg mb-4 text-center font-semibold ${
+                searchResult === 'Ada' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                searchResult === 'Tidak Ada' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+              }`}>
+                {searchResult}
+              </div>
+            )}
+            <div className="flex space-x-2">
+              <button
+                onClick={handleSearch}
+                className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+              >
+                Cek
+              </button>
+              <button
+                onClick={() => {
+                  setShowSearchModal(false);
+                  setSearchQuery('');
+                  setSearchResult('');
+                }}
+                className="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
