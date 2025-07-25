@@ -44,52 +44,97 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
       case 'warga':
         const wargaItems = [...baseItems];
         
-        // Tambahkan menu Profile jika enabled
-        if (menuConfig.profile.enabled) {
-          wargaItems.push({ id: 'profile-warga', label: menuConfig.profile.title, icon: User });
-        }
-        
         wargaItems.push(
           { id: 'aduan-saya', label: 'Aduan Saya', icon: MessageCircle },
-          { id: 'payments', label: 'Pembayaran', icon: CreditCard },
-          { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
-          { id: 'buku-kas', label: 'Buku Kas', icon: BookOpen },
-          { id: 'dokumen', label: 'Dokumen', icon: FileText }
+          { id: 'payments', label: 'Pembayaran', icon: CreditCard }
         );
+        
+        if (menuConfig.pengeluaran.enabled) {
+          wargaItems.push({ id: 'pengeluaran', label: menuConfig.pengeluaran.title, icon: TrendingDown });
+        }
+        
+        if (menuConfig.bukuKas.enabled) {
+          wargaItems.push({ id: 'buku-kas', label: menuConfig.bukuKas.title, icon: BookOpen });
+        }
+        
+        wargaItems.push({ id: 'dokumen', label: 'Dokumen', icon: FileText });
+        
+        if (menuConfig.profile.enabled) {
+          wargaItems.push({ id: 'profile', label: menuConfig.profile.title, icon: User });
+        }
         
         return wargaItems;
       case 'koordinator_perblok':
-        return [
+        const koordinatorItems = [
           ...baseItems,
           { id: 'kelola-warga-blok', label: 'Kelola Warga', icon: Users },
           { id: 'tambah-pembayaran', label: 'Tambah Pembayaran', icon: Plus },
           { id: 'aduan-warga', label: 'Aduan Warga', icon: MessageCircle },
-          { id: 'pembayaran-warga', label: 'Pembayaran Warga', icon: CreditCard },
-          { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
-          { id: 'buku-kas', label: 'Buku Kas', icon: BookOpen },
-          { id: 'dokumen', label: 'Dokumen', icon: FileText }
+          { id: 'pembayaran-warga', label: 'Pembayaran Warga', icon: CreditCard }
         ];
+        
+        if (menuConfig.pengeluaran.enabled) {
+          koordinatorItems.push({ id: 'pengeluaran', label: menuConfig.pengeluaran.title, icon: TrendingDown });
+        }
+        
+        if (menuConfig.bukuKas.enabled) {
+          koordinatorItems.push({ id: 'buku-kas', label: menuConfig.bukuKas.title, icon: BookOpen });
+        }
+        
+        koordinatorItems.push({ id: 'dokumen', label: 'Dokumen', icon: FileText });
+        
+        if (menuConfig.profile.enabled) {
+          koordinatorItems.push({ id: 'profile', label: menuConfig.profile.title, icon: User });
+        }
+        
+        return koordinatorItems;
       case 'admin':
-        return [
+        const adminItems = [
           ...baseItems,
           { id: 'kelola-warga', label: 'Kelola Warga', icon: Users },
           { id: 'complaints', label: 'Kelola Aduan', icon: MessageCircle },
-          { id: 'payments-admin', label: 'Data Pembayaran', icon: CreditCard },
-          { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
-          { id: 'buku-kas', label: 'Buku Kas', icon: BookOpen },
-          { id: 'dokumen', label: 'Dokumen', icon: FileText }
+          { id: 'payments-admin', label: 'Data Pembayaran', icon: CreditCard }
         ];
+        
+        if (menuConfig.pengeluaran.enabled) {
+          adminItems.push({ id: 'pengeluaran', label: menuConfig.pengeluaran.title, icon: TrendingDown });
+        }
+        
+        if (menuConfig.bukuKas.enabled) {
+          adminItems.push({ id: 'buku-kas', label: menuConfig.bukuKas.title, icon: BookOpen });
+        }
+        
+        adminItems.push({ id: 'dokumen', label: 'Dokumen', icon: FileText });
+        
+        if (menuConfig.profile.enabled) {
+          adminItems.push({ id: 'profile', label: menuConfig.profile.title, icon: User });
+        }
+        
+        return adminItems;
       case 'ketua':
-        return [
+        const ketuaItems = [
           ...baseItems,
           { id: 'kelola-warga', label: 'Kelola Warga', icon: Users },
           { id: 'kelola-perangkat', label: 'Perangkat Komunitas', icon: UserCog },
           { id: 'aduan-warga', label: 'Aduan Warga', icon: MessageCircle },
-          { id: 'pembayaran-warga', label: 'Pembayaran Warga', icon: CreditCard },
-          { id: 'pengeluaran', label: 'Pengeluaran', icon: TrendingDown },
-          { id: 'buku-kas', label: 'Buku Kas', icon: BookOpen },
-          { id: 'dokumen', label: 'Dokumen', icon: FileText }
+          { id: 'pembayaran-warga', label: 'Pembayaran Warga', icon: CreditCard }
         ];
+        
+        if (menuConfig.pengeluaran.enabled) {
+          ketuaItems.push({ id: 'pengeluaran', label: menuConfig.pengeluaran.title, icon: TrendingDown });
+        }
+        
+        if (menuConfig.bukuKas.enabled) {
+          ketuaItems.push({ id: 'buku-kas', label: menuConfig.bukuKas.title, icon: BookOpen });
+        }
+        
+        ketuaItems.push({ id: 'dokumen', label: 'Dokumen', icon: FileText });
+        
+        if (menuConfig.profile.enabled) {
+          ketuaItems.push({ id: 'profile', label: menuConfig.profile.title, icon: User });
+        }
+        
+        return ketuaItems;
       default:
         return baseItems;
     }

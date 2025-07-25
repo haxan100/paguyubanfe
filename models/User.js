@@ -1,5 +1,11 @@
 import mysql from 'mysql2/promise';
-import { dbConfig } from '../config/database.js';
+
+const dbConfig = {
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'paguyuban'
+};
 
 class User {
   static async create(userData) {
@@ -130,6 +136,40 @@ class User {
     
     await connection.end();
     return rows.map(row => row.blok);
+  }
+
+  static async updatePassword(id, password) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [result] = await connection.execute(
+      'UPDATE users SET password = ? WHERE id = ?',
+      [password, id]
+    );
+    
+    await connection.end();
+    return result;
+  }
+
+  static async updateProfile(id, data) {
+    const connection = await mysql.createConnection(dbConfig);
+    const { nama, email, no_hp, foto_profile } = data;
+    
+    console.log('Updating user ID:', id);
+    console.log('Update data:', { nama, email, no_hp });
+    
+    // Check if user exists first
+    const [checkUser] = await connection.execute('SELECT id FROM users WHERE id = ?', [id]);
+    console.log('User exists:', checkUser.length > 0);
+    
+    const [result] = await connection.execute(
+      'UPDATE users SET nama = ?, email = ?, no_hp = ? WHERE id = ?',
+      [nama, email, no_hp, id]
+    );
+    
+    console.log('Update affected rows:', result.affectedRows);
+    
+    await connection.end();
+    return result;
   }
 }
 

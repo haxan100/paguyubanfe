@@ -1,78 +1,49 @@
-import Warga from '../models/Warga.js';
 import bcrypt from 'bcrypt';
+import Warga from '../models/Warga.js';
 
 class WargaProfileController {
   static async updateProfile(req, res) {
     try {
-      const { nama, email, no_hp, blok } = req.body;
-      const wargaId = req.user.id;
+      const { user_id, nama, email, no_hp, foto_profile } = req.body;
       
-      console.log('=== UPDATE PROFILE DEBUG ===');
-      console.log('User from token:', req.user);
-      console.log('Warga ID:', wargaId);
-      console.log('Update data:', { nama, email, no_hp, blok });
-      console.log('=== END DEBUG ===');
+      console.log('Warga update profile request:', { user_id, nama, email, no_hp });
       
-      await Warga.update(wargaId, { nama, email, no_hp, blok });
+      const result = await Warga.updateProfile(user_id, { nama, email, no_hp, foto_profile });
       
-      res.json({ 
-        status: 'success', 
-        message: 'Profile berhasil diupdate',
-        data: { nama, email, no_hp, blok }
-      });
+      console.log('Warga profile update completed:', result);
+      
+      res.json({ status: 'success', message: 'Profil berhasil diupdate' });
     } catch (error) {
-      console.error('Error updating profile:', error);
-      res.status(500).json({ 
-        status: 'error', 
-        message: error.message 
-      });
+      console.error('Warga update profile error:', error);
+      if (error.code === 'ER_DUP_ENTRY') {
+        res.status(400).json({ status: 'error', message: 'Email sudah digunakan' });
+      } else {
+        res.status(500).json({ status: 'error', message: 'Server error: ' + error.message });
+      }
     }
   }
 
   static async updatePassword(req, res) {
     try {
-      const { currentPassword, newPassword } = req.body;
-      const wargaId = req.user.id;
+      const { user_id, currentPassword, newPassword } = req.body;
       
-      console.log('=== UPDATE PASSWORD DEBUG ===');
-      console.log('User from token:', req.user);
-      console.log('Warga ID:', wargaId);
-      console.log('=== END DEBUG ===');
-      
-      // Get current warga data
-      const warga = await Warga.findById(wargaId);
-      if (!warga) {
-        return res.status(404).json({ 
-          status: 'error', 
-          message: 'Warga tidak ditemukan' 
-        });
+      const user = await Warga.findById(user_id);
+      if (!user) {
+        return res.status(404).json({ status: 'error', message: 'User tidak ditemukan' });
       }
       
-      // Check current password
-      const isValidPassword = await bcrypt.compare(currentPassword, warga.password);
-      if (!isValidPassword) {
-        return res.status(400).json({ 
-          status: 'error', 
-          message: 'Password lama tidak benar' 
-        });
+      const isValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isValid) {
+        return res.status(401).json({ status: 'error', message: 'Password saat ini salah' });
       }
       
-      // Hash new password
       const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await Warga.updatePassword(user_id, hashedPassword);
       
-      // Update password
-      await Warga.update(wargaId, { password: hashedPassword });
-      
-      res.json({ 
-        status: 'success', 
-        message: 'Password berhasil diubah' 
-      });
+      res.json({ status: 'success', message: 'Password berhasil diubah' });
     } catch (error) {
-      console.error('Error updating password:', error);
-      res.status(500).json({ 
-        status: 'error', 
-        message: error.message 
-      });
+      console.error('Warga update password error:', error);
+      res.status(500).json({ status: 'error', message: 'Server error: ' + error.message });
     }
   }
 }

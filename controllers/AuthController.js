@@ -88,6 +88,51 @@ class AuthController {
       }
     }
   }
+
+  static async updatePassword(req, res) {
+    try {
+      const { user_id, currentPassword, newPassword } = req.body;
+      
+      const user = await User.findById(user_id);
+      if (!user) {
+        return res.status(404).json({ status: 'error', message: 'User tidak ditemukan' });
+      }
+      
+      const isValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isValid) {
+        return res.status(401).json({ status: 'error', message: 'Password saat ini salah' });
+      }
+      
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await User.updatePassword(user_id, hashedPassword);
+      
+      res.json({ status: 'success', message: 'Password berhasil diubah' });
+    } catch (error) {
+      console.error('Update password error:', error);
+      res.status(500).json({ status: 'error', message: 'Server error: ' + error.message });
+    }
+  }
+
+  static async updateProfile(req, res) {
+    try {
+      const { user_id, nama, email, no_hp, foto_profile } = req.body;
+      
+      console.log('Received update profile request:', { user_id, nama, email, no_hp });
+      
+      const result = await User.updateProfile(user_id, { nama, email, no_hp, foto_profile });
+      
+      console.log('Profile update completed:', result);
+      
+      res.json({ status: 'success', message: 'Profil berhasil diupdate' });
+    } catch (error) {
+      console.error('Update profile error:', error);
+      if (error.code === 'ER_DUP_ENTRY') {
+        res.status(400).json({ status: 'error', message: 'Email sudah digunakan' });
+      } else {
+        res.status(500).json({ status: 'error', message: 'Server error: ' + error.message });
+      }
+    }
+  }
 }
 
 export default AuthController;
