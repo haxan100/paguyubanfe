@@ -67,9 +67,9 @@ class Payment {
     const connection = await mysql.createConnection(dbConfig);
     
     const [rows] = await connection.execute(`
-      SELECT p.*, u.nama, u.blok, admin.nama as admin_nama
+      SELECT p.*, w.nama, w.blok, admin.nama as admin_nama
       FROM payments p 
-      JOIN users u ON p.user_id = u.id 
+      JOIN warga w ON p.user_id = w.id 
       LEFT JOIN users admin ON p.admin_id = admin.id
       ORDER BY p.tanggal_upload DESC
     `);
