@@ -63,6 +63,14 @@ app.use(express.static('dist'));
 app.post('/api/auth/login', AuthController.login);
 app.post('/api/auth/register', AuthController.register);
 
+// Profile Routes - User (non-warga)
+app.post('/api/auth/update-password', AuthController.updatePassword);
+app.post('/api/auth/update-profile', AuthController.updateProfile);
+
+// Profile Routes - Warga
+app.post('/api/warga/update-password', WargaProfileController.updatePassword);
+app.post('/api/warga/update-profile', WargaProfileController.updateProfile);
+
 // Aduan Routes (Protected)
 app.post('/api/aduan', verifyToken, AduanController.upload.single('foto'), AduanController.create);
 app.get('/api/aduan', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), AduanController.getAll);
