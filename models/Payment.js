@@ -14,7 +14,17 @@ class Payment {
     await connection.end();
     return result;
   }
-
+  static async isDuplicate(user_id, tahun, bulan) {
+    console.log(`Checking for duplicate payment for user ${user_id} in year ${tahun} and month ${bulan}`);
+    
+    const connection = await mysql.createConnection(dbConfig);
+    const [rows] = await connection.execute(
+      'SELECT id FROM payments WHERE user_id = ? AND tahun = ? AND bulan = ?',
+      [user_id, tahun, bulan]
+    );
+    await connection.end();
+    return rows.length > 0;
+  }
   static async findByUser(userId) {
     const connection = await mysql.createConnection(dbConfig);
     

@@ -12,5 +12,15 @@ export const menuConfig = {
     enabled: false, // true = menu muncul, false = menu disembunyikan
     title: 'Profile Saya',
     description: 'Update data diri dan password warga'
+  },
+  pengeluaran: {
+    enabled: false, // true = menu muncul, false = menu disembunyikan
+    title: 'Pengeluaran',
+    description: 'Data pengeluaran komunitas'
+  },
+  bukuKas: {
+    enabled: false, // true = menu muncul, false = menu disembunyikan
+    title: 'Buku Kas',
+    description: 'Laporan keuangan komunitas'
   }
 };
