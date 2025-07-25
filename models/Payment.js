@@ -25,6 +25,26 @@ class Payment {
     await connection.end();
     return rows.length > 0;
   }
+  
+    static async getByUser(req, res) {
+      try {
+        const { user_id } = req.params;
+        
+        const connection = await mysql.createConnection(dbConfig);
+        
+        const [rows] = await connection.execute(
+          'SELECT * FROM payments WHERE user_id = ? ORDER BY tahun DESC, bulan DESC',
+          [user_id]
+        );
+        
+        await connection.end();
+        
+        res.json({ status: 'success', data: rows });
+      } catch (error) {
+        console.error('Warga payment get error:', error);
+        res.status(500).json({ status: 'error', message: 'Server error: ' + error.message });
+      }
+    }
   static async findByUser(userId) {
     const connection = await mysql.createConnection(dbConfig);
     

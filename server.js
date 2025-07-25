@@ -21,6 +21,8 @@ import BukuKasController from './controllers/BukuKasController.js';
 import DokumenController from './controllers/DokumenController.js';
 import DashboardController from './controllers/DashboardController.js';
 import WargaProfileController from './controllers/WargaProfileController.js';
+import WargaPaymentController from './controllers/WargaPaymentController.js';
+import UserPaymentController from './controllers/UserPaymentController.js';
 import PerangkatController from './controllers/PerangkatController.js';
 import { verifyToken, checkRole } from './middleware/auth.js';
 
@@ -70,6 +72,18 @@ app.post('/api/auth/update-profile', AuthController.updateProfile);
 // Profile Routes - Warga
 app.post('/api/warga/update-password', WargaProfileController.updatePassword);
 app.post('/api/warga/update-profile', WargaProfileController.updateProfile);
+
+// Payment Routes - Warga
+// app.post('/api/warga/payments', verifyToken, WargaPaymentController.create);
+app.post('/api/warga/payments', verifyToken, PaymentController.upload.single('bukti_transfer'), PaymentController.createWarga);
+
+app.get('/api/warga/payments/:user_id', verifyToken, WargaPaymentController.getByUser);
+app.delete('/api/warga/payments/:id', verifyToken, WargaPaymentController.delete);
+
+// Payment Routes - User (non-warga)
+app.post('/api/user/payments', UserPaymentController.create);
+app.get('/api/user/payments/:user_id', UserPaymentController.getByUser);
+app.delete('/api/user/payments/:id', UserPaymentController.delete);
 
 // Aduan Routes (Protected)
 app.post('/api/aduan', verifyToken, AduanController.upload.single('foto'), AduanController.create);

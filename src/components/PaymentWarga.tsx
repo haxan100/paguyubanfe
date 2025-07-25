@@ -38,7 +38,9 @@ export default function PaymentWarga() {
 
   const fetchPayments = async () => {
     try {
-      const response = await apiRequest('/api/payments/user');
+      // Pilih endpoint berdasarkan jenis user
+      const endpoint = user?.jenis === 'warga' ? `/api/warga/payments/${user.id}` : `/api/user/payments/${user?.id}`;
+      const response = await apiRequest(endpoint);
       const result = await response.json();
       if (result.status === 'success') {
         setPayments(result.data);
@@ -85,7 +87,9 @@ export default function PaymentWarga() {
       formDataToSend.append('bulan', formData.bulan.toString());
       formDataToSend.append('bukti_transfer', buktiTransfer);
 
-      const response = await apiRequest('/api/payments', {
+      // Pilih endpoint berdasarkan jenis user
+      const endpoint = user?.jenis === 'warga' ? '/api/warga/payments' : '/api/user/payments';
+      const response = await apiRequest(endpoint, {
         method: 'POST',
         body: formDataToSend
       });
@@ -138,7 +142,9 @@ export default function PaymentWarga() {
 
     if (result.isConfirmed) {
       try {
-        const response = await apiRequest(`/api/payments/${id}`, {
+        // Pilih endpoint berdasarkan jenis user
+        const endpoint = user?.jenis === 'warga' ? `/api/warga/payments/${id}` : `/api/user/payments/${id}`;
+        const response = await apiRequest(endpoint, {
           method: 'DELETE'
         });
 
@@ -165,7 +171,9 @@ export default function PaymentWarga() {
 
   const exportPayments = async () => {
     try {
-      const response = await apiRequest(`/api/payments/export/${currentYear}`);
+      // Pilih endpoint berdasarkan jenis user
+      const endpoint = user?.jenis === 'warga' ? `/api/warga/payments/export/${currentYear}` : `/api/user/payments/export/${currentYear}`;
+      const response = await apiRequest(endpoint);
       const result = await response.json();
       if (result.status === 'success') {
         const csvContent = [

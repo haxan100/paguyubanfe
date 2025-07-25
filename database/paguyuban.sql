@@ -37,6 +37,32 @@ INSERT INTO users (nama, email, no_hp, blok, jenis, password) VALUES
 ('Koordinator A', 'koordinator@paguyuban.com', '081234567892', 'A1', 'koordinator_perblok', '$2b$10$hdsoFScFE/WKmg1wP2tF0ORzEwB6kH91RjNx1kn77rEfrFPR5vvju'),
 ('Warga 1', 'warga@paguyuban.com', '081234567893', 'A1', 'warga', '$2b$10$hdsoFScFE/WKmg1wP2tF0ORzEwB6kH91RjNx1kn77rEfrFPR5vvju');
 
+-- Tabel payments untuk warga
+CREATE TABLE warga_payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    bulan INT NOT NULL,
+    tahun INT NOT NULL,
+    jumlah DECIMAL(10,2) NOT NULL,
+    bukti_transfer TEXT,
+    status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES warga(id)
+);
+
+-- Tabel payments untuk user non-warga
+CREATE TABLE user_payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    bulan INT NOT NULL,
+    tahun INT NOT NULL,
+    jumlah DECIMAL(10,2) NOT NULL,
+    bukti_transfer TEXT,
+    status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- Sample data aduan
 INSERT INTO aduan (user_id, judul, jenis_aduan, deskripsi, foto, status) VALUES
 (4, 'Lampu Jalan Mati', 'infrastruktur', 'Lampu jalan di depan blok A1 sudah mati sejak 3 hari yang lalu', '[]', 'pending'),

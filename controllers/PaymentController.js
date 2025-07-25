@@ -77,6 +77,54 @@ class PaymentController {
     });
   }
   }
+  static async createWarga(req, res) {
+    console.log('Creating payment with data:', req.body);
+    try {
+      const { tahun, bulan } = req.body;
+      const bukti_transfer = req.file ? req.file.filename : null;
+      // const user_id = req.user.id;
+      const { id: user_id, nama } = req.user;
+
+      const jumlah = 100000; // Fixed amount
+
+      if (!bukti_transfer) {
+        return res.status(400).json({ status: 'error', message: 'Bukti transfer harus diupload' });
+      }
+
+      // Gunakan method model untuk cek duplikat
+      const isDuplicate = await Payment.isDuplicate(user_id, tahun, bulan);
+      if (isDuplicate) {
+        return res.status(400).json({ 
+          status: 'error', 
+          message: `Pembayaran bulan ${bulan} tahun ${tahun} sudah pernah dilakukan.` 
+        });
+      }
+
+      // Insert payment
+      const result = await Payment.create({ user_id, tahun, bulan, jumlah, bukti_transfer });
+
+      // Emit ke socket.io
+      const io = req.app.get('io');
+      io.emit('new-payment', {
+        type: 'payment',
+        message: 'Pembayaran baru menunggu konfirmasi',
+        user: req.user.nama,
+        timestamp: new Date()
+      });
+
+      res.json({ 
+        status: 'success', 
+        message: 'Pembayaran berhasil diupload', 
+        id: result.insertId 
+      });
+    } catch (error) {
+      console.error('Error creating payment:', error);
+      res.status(500).json({ 
+        status: 'error', 
+        message: error.message 
+      });
+    }
+  }
 
 
   static async getByUser(req, res) {
