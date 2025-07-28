@@ -40,7 +40,7 @@ class BukuKasController {
         ...pengeluaran.map(p => ({
           ...p,
           type: 'pengeluaran',
-          tanggal: p.tanggal_dibuat
+          tanggal: p.tanggal_digunakan || p.tanggal_dibuat
         }))
       ].sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
       
@@ -95,7 +95,7 @@ class BukuKasController {
       ...pengeluaran.map(p => ({
         ...p,
         type: 'pengeluaran',
-        tanggal: p.tanggal_dibuat
+        tanggal: p.tanggal_digunakan || p.tanggal_dibuat
       }))
     ].sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
   }

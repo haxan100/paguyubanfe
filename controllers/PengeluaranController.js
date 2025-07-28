@@ -34,7 +34,7 @@ class PengeluaranController {
   
   static async create(req, res) {
     try {
-      const { tahun, bulan, jumlah, judul, deskripsi } = req.body;
+      const { tahun, bulan, jumlah, judul, deskripsi, tanggal_digunakan } = req.body;
       const foto = req.file ? req.file.filename : null;
       const admin_id = req.user.id;
       
@@ -49,7 +49,8 @@ class PengeluaranController {
         jumlah: parseFloat(jumlah),
         judul,
         deskripsi,
-        foto
+        foto,
+        tanggal_digunakan
       });
       
       res.json({ status: 'success', message: 'Pengeluaran berhasil ditambahkan', id: result.insertId });
@@ -110,7 +111,8 @@ class PengeluaranController {
                          'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
       
       const exportData = pengeluaran.map(item => ({
-        tanggal: new Date(item.tanggal_dibuat).toLocaleDateString('id-ID'),
+        tanggal_dibuat: new Date(item.tanggal_dibuat).toLocaleDateString('id-ID'),
+        tanggal_digunakan: item.tanggal_digunakan ? new Date(item.tanggal_digunakan).toLocaleDateString('id-ID') : '-',
         bulan: bulanNames[item.bulan - 1],
         judul: item.judul,
         jumlah: item.jumlah,

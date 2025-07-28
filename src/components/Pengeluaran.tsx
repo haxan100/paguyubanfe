@@ -14,6 +14,7 @@ interface PengeluaranData {
   foto: string;
   admin_nama: string;
   tanggal_dibuat: string;
+  tanggal_digunakan?: string;
 }
 
 export default function Pengeluaran() {
@@ -26,7 +27,8 @@ export default function Pengeluaran() {
     bulan: new Date().getMonth() + 1,
     jumlah: '',
     judul: '',
-    deskripsi: ''
+    deskripsi: '',
+    tanggal_digunakan: new Date().toISOString().split('T')[0]
   });
   const [foto, setFoto] = useState<File | null>(null);
 
@@ -68,6 +70,7 @@ export default function Pengeluaran() {
       formDataToSend.append('jumlah', formData.jumlah);
       formDataToSend.append('judul', formData.judul);
       formDataToSend.append('deskripsi', formData.deskripsi);
+      formDataToSend.append('tanggal_digunakan', formData.tanggal_digunakan);
       formDataToSend.append('foto', foto);
 
       const response = await apiRequest('/api/pengeluaran', {
@@ -83,7 +86,8 @@ export default function Pengeluaran() {
           bulan: new Date().getMonth() + 1,
           jumlah: '',
           judul: '',
-          deskripsi: ''
+          deskripsi: '',
+          tanggal_digunakan: new Date().toISOString().split('T')[0]
         });
         setFoto(null);
         fetchPengeluaran();
@@ -151,9 +155,10 @@ export default function Pengeluaran() {
       const result = await response.json();
       if (result.status === 'success') {
         const csvContent = [
-          ['Tanggal', 'Bulan', 'Judul', 'Jumlah', 'Deskripsi', 'Admin', 'Foto'].join(','),
+          ['Tanggal Dibuat', 'Tanggal Digunakan', 'Bulan', 'Judul', 'Jumlah', 'Deskripsi', 'Admin', 'Foto'].join(','),
           ...result.data.map((item: any) => [
-            item.tanggal,
+            item.tanggal_dibuat,
+            item.tanggal_digunakan,
             item.bulan,
             item.judul,
             item.jumlah,
@@ -208,7 +213,7 @@ export default function Pengeluaran() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tanggal
+                  Tanggal Digunakan
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Judul
@@ -236,8 +241,11 @@ export default function Pengeluaran() {
               {pengeluaran.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(item.tanggal_dibuat).toLocaleDateString('id-ID')}
+                    {item.tanggal_digunakan ? new Date(item.tanggal_digunakan).toLocaleDateString('id-ID') : '-'}
                     <div className="text-xs text-gray-500">
+                      Dibuat: {new Date(item.tanggal_dibuat).toLocaleDateString('id-ID')}
+                    </div>
+                    <div className="text-xs text-blue-600">
                       {bulanNames[item.bulan - 1]} {item.tahun}
                     </div>
                   </td>
@@ -337,6 +345,17 @@ export default function Pengeluaran() {
               </div>
               
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Digunakan</label>
+                <input
+                  type="date"
+                  value={formData.tanggal_digunakan}
+                  onChange={(e) => setFormData({...formData, tanggal_digunakan: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  required
+                />
+              </div>
+              
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
                 <textarea
                   value={formData.deskripsi}
@@ -381,7 +400,8 @@ export default function Pengeluaran() {
                       bulan: new Date().getMonth() + 1,
                       jumlah: '',
                       judul: '',
-                      deskripsi: ''
+                      deskripsi: '',
+                      tanggal_digunakan: new Date().toISOString().split('T')[0]
                     });
                     setFoto(null);
                   }}

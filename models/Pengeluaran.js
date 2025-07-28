@@ -2,12 +2,12 @@ import mysql from 'mysql2/promise';
 import { dbConfig } from '../config/database.js';
 
 class Pengeluaran {
-  static async create({ admin_id, tahun, bulan, jumlah, judul, deskripsi, foto }) {
+  static async create({ admin_id, tahun, bulan, jumlah, judul, deskripsi, foto, tanggal_digunakan }) {
     const connection = await mysql.createConnection(dbConfig);
     
     const [result] = await connection.execute(
-      'INSERT INTO pengeluaran (admin_id, tahun, bulan, jumlah, judul, deskripsi, foto) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [admin_id, tahun, bulan, jumlah, judul, deskripsi, foto]
+      'INSERT INTO pengeluaran (admin_id, tahun, bulan, jumlah, judul, deskripsi, foto, tanggal_digunakan) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [admin_id, tahun, bulan, jumlah, judul, deskripsi, foto, tanggal_digunakan]
     );
     
     await connection.end();
