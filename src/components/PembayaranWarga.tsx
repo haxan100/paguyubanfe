@@ -18,11 +18,12 @@ interface Payment {
 export default function PembayaranWarga() {
   const { user } = useAuth();
   const [payments, setPayments] = useState<Payment[]>([]);
-  const [exportForm, setExportForm] = useState({
+  const [filterForm, setFilterForm] = useState({
     tahun: new Date().getFullYear(),
     bulan: new Date().getMonth() + 1
   });
   const [filterBlok, setFilterBlok] = useState('semua');
+  const [filterStatus, setFilterStatus] = useState('semua');
   
   const userBlok = user?.blok?.charAt(0); // Ambil huruf pertama blok koordinator
 
@@ -31,11 +32,11 @@ export default function PembayaranWarga() {
 
   useEffect(() => {
     fetchPayments();
-  }, []);
+  }, [filterForm.tahun, filterForm.bulan]);
 
   const fetchPayments = async () => {
     try {
-      const response = await apiRequest('/api/admin/payments');
+      const response = await apiRequest(`/api/admin/payments/${filterForm.tahun}/${filterForm.bulan}`);
       const result = await response.json();
       if (result.status === 'success') {
         setPayments(result.data);
@@ -64,9 +65,13 @@ export default function PembayaranWarga() {
       if (paymentBlok !== userBlok) return false;
     }
     
-    // Filter berdasarkan dropdown
-    if (filterBlok === 'semua') return true;
-    return payment.blok?.charAt(0) === filterBlok;
+    // Filter berdasarkan blok
+    if (filterBlok !== 'semua' && payment.blok?.charAt(0) !== filterBlok) return false;
+    
+    // Filter berdasarkan status
+    if (filterStatus !== 'semua' && payment.status !== filterStatus) return false;
+    
+    return true;
   });
 
   const handleConfirmPayment = async (id: number, status: string) => {
@@ -111,7 +116,7 @@ export default function PembayaranWarga() {
 
   const handleExportPayments = async () => {
     try {
-      const response = await apiRequest(`/api/admin/payments/export/${exportForm.tahun}/${exportForm.bulan}`);
+      const response = await apiRequest(`/api/admin/payments/export/${filterForm.tahun}/${filterForm.bulan}`);
       const result = await response.json();
       
       if (result.status === 'success') {
@@ -133,7 +138,7 @@ export default function PembayaranWarga() {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `pembayaran-${bulanNames[exportForm.bulan - 1]}-${exportForm.tahun}.csv`;
+        a.download = `pembayaran-${bulanNames[filterForm.bulan - 1]}-${filterForm.tahun}.csv`;
         a.click();
       }
     } catch (error) {
@@ -177,13 +182,12 @@ export default function PembayaranWarga() {
           Kelola Pembayaran Warga{user?.jenis === 'koordinator_perblok' && userBlok ? ` Blok ${userBlok}` : ''}
         </h1>
         
-        <div className={`flex items-center ${isMobile ? 'flex-col space-y-2' : 'space-x-4'}`}>
-          {/* Hanya tampilkan filter blok jika bukan koordinator atau ada lebih dari 1 blok */}
+        <div className={`flex items-center ${isMobile ? 'flex-col space-y-2' : 'space-x-3'}`}>
           {(user?.jenis !== 'koordinator_perblok' || getUniqueBloks().length > 1) && (
             <select
               value={filterBlok}
               onChange={(e) => setFilterBlok(e.target.value)}
-              className={`px-3 py-2 border border-gray-300 rounded-lg ${isMobile ? 'w-full' : ''}`}
+              className={`px-3 py-2 border rounded-lg ${isMobile ? 'w-full' : ''}`}
             >
               <option value="semua">{user?.jenis === 'koordinator_perblok' ? `Blok ${userBlok}` : 'Semua Blok'}</option>
               {getUniqueBloks().map(blok => (
@@ -192,18 +196,28 @@ export default function PembayaranWarga() {
             </select>
           )}
           <select
-            value={exportForm.tahun}
-            onChange={(e) => setExportForm({...exportForm, tahun: parseInt(e.target.value)})}
-            className={`px-3 py-2 border border-gray-300 rounded-lg ${isMobile ? 'w-full' : ''}`}
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className={`px-3 py-2 border rounded-lg ${isMobile ? 'w-full' : ''}`}
           >
-            {[2023, 2024, 2025].map(year => (
+            <option value="semua">Semua Status</option>
+            <option value="menunggu_konfirmasi">Menunggu</option>
+            <option value="dikonfirmasi">Lunas</option>
+            <option value="ditolak">Ditolak</option>
+          </select>
+          <select
+            value={filterForm.tahun}
+            onChange={(e) => setFilterForm({...filterForm, tahun: parseInt(e.target.value)})}
+            className={`px-3 py-2 border rounded-lg ${isMobile ? 'w-full' : ''}`}
+          >
+            {[2023, 2024, 2025,2026,2027].map(year => (
               <option key={year} value={year}>{year}</option>
             ))}
           </select>
           <select
-            value={exportForm.bulan}
-            onChange={(e) => setExportForm({...exportForm, bulan: parseInt(e.target.value)})}
-            className={`px-3 py-2 border border-gray-300 rounded-lg ${isMobile ? 'w-full' : ''}`}
+            value={filterForm.bulan}
+            onChange={(e) => setFilterForm({...filterForm, bulan: parseInt(e.target.value)})}
+            className={`px-3 py-2 border rounded-lg ${isMobile ? 'w-full' : ''}`}
           >
             {bulanNames.map((nama, index) => (
               <option key={index + 1} value={index + 1}>{nama}</option>
@@ -211,7 +225,7 @@ export default function PembayaranWarga() {
           </select>
           <button
             onClick={handleExportPayments}
-            className={`flex items-center justify-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 ${isMobile ? 'w-full' : ''}`}
+            className={`flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 ${isMobile ? 'w-full' : ''}`}
           >
             <Download size={16} />
             <span>Export</span>
@@ -221,57 +235,77 @@ export default function PembayaranWarga() {
       
       <div className="space-y-4">
         {filteredPayments.map((payment) => (
-          <div key={payment.id} className="bg-white rounded-lg p-4 shadow border">
-            <div className="flex justify-between items-start mb-3">
+          <div key={payment.id} className="bg-white rounded-lg p-5 shadow border hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-start">
               <div className="flex-1">
-                <h3 className={`font-semibold text-gray-900 ${isMobile ? 'text-base' : 'text-lg'}`}>{payment.nama}</h3>
-                <p className={`text-gray-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                  Blok {payment.blok} • {payment.no_hp}
-                </p>
-                <p className={`font-semibold text-blue-600 ${isMobile ? 'text-sm' : 'text-base'}`}>
-                  Rp {payment.jumlah?.toLocaleString('id-ID') || '0'}
-                </p>
-                <p className={`text-gray-500 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                  {new Date(payment.tanggal_upload).toLocaleDateString('id-ID')}
-                </p>
-              </div>
-              <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(payment.status)}`}>
-                {getStatusText(payment.status)}
-              </span>
-            </div>
-            
-            <div className={`flex items-center ${isMobile ? 'justify-between' : 'space-x-4'}`}>
-              <img
-                src={`/assets/uploads/${payment.bukti_transfer}`}
-                alt="Bukti Transfer"
-                className={`object-cover rounded cursor-pointer ${isMobile ? 'w-12 h-12' : 'w-16 h-16'}`}
-                onClick={() => window.open(`/assets/uploads/${payment.bukti_transfer}`, '_blank')}
-              />
-              
-              {payment.status === 'menunggu_konfirmasi' && (
-                <div className={`${isMobile ? 'flex flex-col space-y-1' : 'space-x-2'}`}>
-                  <button
-                    onClick={() => handleConfirmPayment(payment.id, 'dikonfirmasi')}
-                    className={`bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 ${isMobile ? 'w-20' : ''}`}
-                  >
-                    Konfirmasi
-                  </button>
-                  <button
-                    onClick={() => handleConfirmPayment(payment.id, 'ditolak')}
-                    className={`bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 ${isMobile ? 'w-20' : ''}`}
-                  >
-                    Tolak
-                  </button>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xl font-bold text-gray-900">{payment.nama}</h3>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(payment.status)}`}>
+                    {getStatusText(payment.status)}
+                  </span>
                 </div>
-              )}
+                
+                <div className="flex items-center gap-6 mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 text-sm">Blok:</span>
+                    <span className="font-semibold text-gray-700">{payment.blok}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 text-sm">HP:</span>
+                    <span className="text-gray-700">{payment.no_hp}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 text-sm">Periode:</span>
+                    <span className="font-semibold text-purple-600">{bulanNames[payment.bulan - 1]} {payment.tahun}</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-2xl font-bold text-blue-600">
+                      Rp {payment.jumlah?.toLocaleString('id-ID') || '0'}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Upload: {new Date(payment.tanggal_upload).toLocaleDateString('id-ID')}
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={`/assets/uploads/${payment.bukti_transfer}`}
+                      alt="Bukti Transfer"
+                      className="w-20 h-20 object-cover rounded-lg cursor-pointer border-2 border-gray-200 hover:border-blue-400 transition-colors"
+                      onClick={() => window.open(`/assets/uploads/${payment.bukti_transfer}`, '_blank')}
+                    />
+                    
+                    {payment.status === 'menunggu_konfirmasi' && (
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={() => handleConfirmPayment(payment.id, 'dikonfirmasi')}
+                          className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors"
+                        >
+                          Konfirmasi
+                        </button>
+                        <button
+                          onClick={() => handleConfirmPayment(payment.id, 'ditolak')}
+                          className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors"
+                        >
+                          Tolak
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         ))}
         
         {filteredPayments.length === 0 && (
-          <div className="text-center py-8">
-            <CreditCard size={48} className="mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-500">Belum ada pembayaran</p>
+          <div className="text-center py-12">
+            <CreditCard size={64} className="mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">Tidak ada data pembayaran</h3>
+            <p className="text-gray-500">Belum ada pembayaran untuk {bulanNames[filterForm.bulan - 1]} {filterForm.tahun}</p>
           </div>
         )}
       </div>

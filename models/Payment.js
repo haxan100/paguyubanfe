@@ -122,11 +122,11 @@ class Payment {
     const connection = await mysql.createConnection(dbConfig);
     
     const [rows] = await connection.execute(`
-      SELECT p.*, u.nama, u.blok, u.no_hp
+      SELECT p.*, w.nama, w.blok, w.no_hp
       FROM payments p 
-      JOIN users u ON p.user_id = u.id 
+      JOIN warga w ON p.user_id = w.id 
       WHERE p.tahun = ? AND p.bulan = ?
-      ORDER BY u.blok, u.nama
+      ORDER BY w.blok, w.nama
     `, [tahun, bulan]);
     
     await connection.end();

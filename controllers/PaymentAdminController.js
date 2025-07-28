@@ -22,6 +22,26 @@ class PaymentAdminController {
     }
   }
 
+  static async getPaymentsByMonth(req, res) {
+    try {
+      const { tahun, bulan } = req.params;
+      let payments = await Payment.findByMonthYear(tahun, bulan);
+      
+      // Filter untuk koordinator berdasarkan blok
+      if (req.user.jenis === 'koordinator_perblok' && req.user.blok) {
+        const userBlok = req.user.blok.charAt(0);
+        payments = payments.filter(payment => 
+          payment.blok && payment.blok.charAt(0) === userBlok
+        );
+      }
+      
+      res.json({ status: 'success', data: payments });
+    } catch (error) {
+      console.error('Error getting payments by month:', error);
+      res.status(500).json({ status: 'error', message: error.message });
+    }
+  }
+
   static async confirmPayment(req, res) {
     try {
       const { id } = req.params;

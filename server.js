@@ -132,6 +132,7 @@ app.delete('/api/warga/:id', verifyToken, checkRole(['admin', 'ketua', 'koordina
 
 // Payment Admin Routes (Admin, Ketua & Koordinator)
 app.get('/api/admin/payments', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), PaymentAdminController.getAllPayments);
+app.get('/api/admin/payments/:tahun/:bulan', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), PaymentAdminController.getPaymentsByMonth);
 app.put('/api/admin/payments/:id/confirm', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), PaymentAdminController.confirmPayment);
 app.get('/api/admin/payments/export/:tahun/:bulan', verifyToken, checkRole(['admin', 'ketua', 'koordinator_perblok']), PaymentAdminController.exportAllPayments);
 app.get('/api/total-income', verifyToken, PaymentAdminController.getTotalIncome);
