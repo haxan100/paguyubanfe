@@ -18,7 +18,7 @@ class AuthController {
         console.log("Searching for phone:", email);
         // Phone number -> search in warga table only
         user = await Warga.findByPhone(email);
-        console.log('Found user by phone:', user);
+        console.log(`[${email}] Found user by phone:`, user);
         isWarga = true;
       } else {
         // Email format -> try users table first, then warga
@@ -31,12 +31,12 @@ class AuthController {
       }
       
       if (!user) {
-        return res.status(401).json({ status: 'error', message: 'Email atau password salah #1' });
+        return res.status(401).json({ status: 'error', message: 'Email atau No Handphone  atau password salah #1' });
       }
       
       const isValid = await bcrypt.compare(password, user.password);
       if (!isValid) {
-        return res.status(401).json({ status: 'error', message: 'Email atau password salah #2' });
+        return res.status(401).json({ status: 'error', message: 'Email atau No Handphone  atau password salah #2' });
       }
       
       // Create user object with jenis

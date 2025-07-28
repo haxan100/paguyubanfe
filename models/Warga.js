@@ -68,7 +68,17 @@ class Warga {
     await connection.end();
     return rows[0];
   }
-
+  static async updatePassword(id, password) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [result] = await connection.execute(
+      'UPDATE warga SET password = ? WHERE id = ?',
+      [password, id]
+    );
+    
+    await connection.end();
+    return result;
+  }
   static async findAll() {
     const connection = await mysql.createConnection(dbConfig);
     

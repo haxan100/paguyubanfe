@@ -4,17 +4,17 @@ export const menuConfig = {
     width: '64' // width dalam class Tailwind (w-64)
   },
   about: {
-    enabled: false, // true = menu muncul, false = menu disembunyikan
+    enabled: true, // true = menu muncul, false = menu disembunyikan
     title: 'Tentang',
     description: 'Informasi tentang sistem paguyuban'
   },
   profile: {
-    enabled: false, // true = menu muncul, false = menu disembunyikan
+    enabled: true, // true = menu muncul, false = menu disembunyikan
     title: 'Profile Saya',
     description: 'Update data diri dan password warga'
   },
   pengeluaran: {
-    enabled: false, // true = menu muncul, false = menu disembunyikan
+    enabled: true, // true = menu muncul, false = menu disembunyikan
     title: 'Pengeluaran',
     description: 'Data pengeluaran komunitas'
   },
