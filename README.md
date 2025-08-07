@@ -50,21 +50,34 @@ cp .env.local.example .env.local
 
 ## 🚀 Menjalankan Aplikasi
 
-### Development
+### Development (Butuh 2 Terminal)
+
+**Terminal 1 - Backend Server:**
+```bash
+npm run server
+```
+*Server akan jalan di http://localhost:5170*
+
+**Terminal 2 - Frontend Vite:**
 ```bash
 npm run dev
 ```
+*Frontend akan jalan di http://localhost:5174*
 
 ### Production
 ```bash
 npm run build
 npm start
 ```
-lsof -ti:3001 | xargs kill -9
 
-### Server Only
+### Kill Process (jika port stuck)
 ```bash
-npm run server
+# Windows
+netstat -ano | findstr :5170
+taskkill /PID <PID_NUMBER> /F
+
+# Linux/Mac
+lsof -ti:5170 | xargs kill -9
 ```
 
 ## 📁 Struktur Proyek
@@ -118,20 +131,20 @@ Untuk testing, gunakan kredensial berikut:
 ### Proxy Error (ECONNREFUSED)
 Jika mendapat error proxy saat development:
 
-1. **Jalankan backend server terlebih dahulu:**
+1. **Pastikan backend server jalan terlebih dahulu di Terminal 1:**
 ```bash
 npm run server
 ```
+*Tunggu sampai muncul pesan "Server running on port 5170"*
 
-2. **Build aplikasi jika belum ada folder dist:**
-```bash
-npm run build
-```
-
-3. **Jalankan frontend di terminal terpisah:**
+2. **Baru jalankan frontend di Terminal 2:**
 ```bash
 npm run dev
 ```
+
+3. **Akses aplikasi di browser:**
+   - Frontend: http://localhost:5174
+   - Backend API: http://localhost:5170
 
 ### Update Browserslist
 Jika ada warning browserslist outdated:
