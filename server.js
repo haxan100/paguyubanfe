@@ -37,7 +37,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"]
   }
 });
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.BE_PORT || 5170;
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
