@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Download, CreditCard } from 'lucide-react';
+import { Download, CreditCard, RefreshCw } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { apiRequest } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useRealtimeData } from '../hooks/useRealtimeData';
 
 interface Payment {
   id: number;
@@ -24,6 +25,7 @@ export default function PembayaranWarga() {
   });
   const [filterBlok, setFilterBlok] = useState('semua');
   const [filterStatus, setFilterStatus] = useState('semua');
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   const userBlok = user?.blok?.charAt(0); // Ambil huruf pertama blok koordinator
 
@@ -34,8 +36,23 @@ export default function PembayaranWarga() {
     fetchPayments();
   }, [filterForm.tahun, filterForm.bulan]);
 
+  // Listen for payment updates
+  useEffect(() => {
+    const handlePaymentUpdate = (event: any) => {
+      console.log('🔄 Auto-refreshing payments data:', event.detail);
+      fetchPayments();
+    };
+
+    window.addEventListener('payment-update', handlePaymentUpdate);
+    
+    return () => {
+      window.removeEventListener('payment-update', handlePaymentUpdate);
+    };
+  }, []);
+
   const fetchPayments = async () => {
     try {
+      setIsRefreshing(true);
       const response = await apiRequest(`/api/admin/payments/${filterForm.tahun}/${filterForm.bulan}`);
       const result = await response.json();
       if (result.status === 'success') {
@@ -43,8 +60,13 @@ export default function PembayaranWarga() {
       }
     } catch (error) {
       console.error('Error fetching payments:', error);
+    } finally {
+      setIsRefreshing(false);
     }
   };
+
+  // Use realtime data hook
+  const { forceRefresh } = useRealtimeData(fetchPayments, [filterForm.tahun, filterForm.bulan]);
 
   const getUniqueBloks = () => {
     const bloks = payments.map(p => p.blok?.charAt(0)).filter(Boolean);
@@ -96,6 +118,17 @@ export default function PembayaranWarga() {
         const result = await response.json();
         if (result.status === 'success') {
           fetchPayments();
+          
+          // Emit socket event for realtime update
+          const io = (window as any).io;
+          if (io) {
+            io.emit('payment-status-changed', {
+              paymentId: id,
+              status,
+              catatan
+            });
+          }
+          
           Swal.fire({
             icon: 'success',
             title: 'Berhasil!',
@@ -223,6 +256,14 @@ export default function PembayaranWarga() {
               <option key={index + 1} value={index + 1}>{nama}</option>
             ))}
           </select>
+          <button
+            onClick={forceRefresh}
+            disabled={isRefreshing}
+            className={`flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 ${isMobile ? 'w-full' : ''}`}
+          >
+            <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
+            <span>Refresh</span>
+          </button>
           <button
             onClick={handleExportPayments}
             className={`flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 ${isMobile ? 'w-full' : ''}`}

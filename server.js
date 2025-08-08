@@ -43,15 +43,59 @@ const PORT = process.env.BE_PORT || 5170;
 io.on('connection', (socket) => {
   console.log('🔌 User connected:', socket.id);
   
-  socket.on('join-room', (userId) => {
-    socket.join(`user-${userId}`);
-    console.log(`👤 User ${userId} joined room user-${userId}`);
+  socket.on('join-room', (data) => {
+    console.log('📡 Received join-room data:', data);
+    
+    if (typeof data === 'string') {
+      // Old format compatibility
+      socket.join(`user-${data}`);
+      console.log(`👤 User ${data} joined room`);
+    } else if (data && typeof data === 'object') {
+      // New format with role-based rooms
+      const { userId, role, blok } = data;
+      
+      if (!userId || !role) {
+        console.error('❌ Invalid join-room data:', data);
+        return;
+      }
+      
+      // Join user-specific room
+      socket.join(`user-${userId}`);
+      console.log(`👤 User ${userId} joined user room`);
+      
+      // Join role-based rooms
+      if (role === 'ketua') {
+        socket.join('ketua');
+        console.log(`👑 Ketua ${userId} joined ketua room`);
+      } else if (role === 'admin') {
+        socket.join('admin');
+        console.log(`🔧 Admin ${userId} joined admin room`);
+      } else if (role === 'koordinator_perblok') {
+        socket.join('koordinator');
+        // Join blok-specific room for koordinator
+        if (blok) {
+          socket.join(`blok-${blok}`);
+          console.log(`🏢 Koordinator ${userId} joined blok-${blok} room`);
+        }
+      }
+      
+      console.log(`✅ User ${userId} (${role}) successfully joined all rooms`);
+    } else {
+      console.error('❌ Invalid join-room data format:', data);
+    }
   });
   
   socket.on('disconnect', () => {
     console.log('❌ User disconnected:', socket.id);
   });
 });
+
+// Helper function to send notifications
+const sendNotification = (io, rooms, data) => {
+  rooms.forEach(room => {
+    io.to(room).emit('payment-notification', data);
+  });
+};
 
 // Make io available to controllers
 app.set('io', io);

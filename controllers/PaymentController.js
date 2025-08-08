@@ -55,14 +55,26 @@ class PaymentController {
     // Insert payment
     const result = await Payment.create({ user_id, tahun, bulan, jumlah, bukti_transfer });
 
-    // Emit ke socket.io
+    // Emit ke socket.io untuk notifikasi
     const io = req.app.get('io');
-    io.emit('new-payment', {
-      type: 'payment',
-      message: 'Pembayaran baru menunggu konfirmasi',
-      user: req.user.nama,
-      timestamp: new Date()
-    });
+    const notificationData = {
+      nama: req.user.nama,
+      blok: req.user.blok,
+      jenis_pembayaran: `${bulan}/${tahun}`,
+      jumlah: jumlah
+    };
+    
+    // Send to ketua
+    io.to('ketua').emit('payment-notification', notificationData);
+    
+    // Send to admin
+    io.to('admin').emit('payment-notification', notificationData);
+    
+    // Send to koordinator of the same blok
+    if (req.user.blok) {
+      const blokPrefix = req.user.blok.charAt(0);
+      io.to(`blok-${blokPrefix}`).emit('payment-notification', notificationData);
+    }
 
     res.json({ 
       status: 'success', 
@@ -103,14 +115,31 @@ class PaymentController {
       // Insert payment
       const result = await Payment.create({ user_id, tahun, bulan, jumlah, bukti_transfer });
 
-      // Emit ke socket.io
+      // Emit ke socket.io untuk notifikasi
       const io = req.app.get('io');
-      io.emit('new-payment', {
-        type: 'payment',
-        message: 'Pembayaran baru menunggu konfirmasi',
-        user: req.user.nama,
-        timestamp: new Date()
-      });
+      const notificationData = {
+        nama: nama,
+        blok: req.user.blok,
+        jenis_pembayaran: `${bulan}/${tahun}`,
+        jumlah: jumlah
+      };
+      
+      console.log('📡 Sending payment notification:', notificationData);
+      
+      // Send to ketua
+      console.log('📡 Sending to ketua room');
+      io.to('ketua').emit('payment-notification', notificationData);
+      
+      // Send to admin
+      console.log('📡 Sending to admin room');
+      io.to('admin').emit('payment-notification', notificationData);
+      
+      // Send to koordinator of the same blok
+      if (req.user.blok) {
+        const blokPrefix = req.user.blok.charAt(0);
+        console.log(`📡 Sending to blok-${blokPrefix} room`);
+        io.to(`blok-${blokPrefix}`).emit('payment-notification', notificationData);
+      }
 
       res.json({ 
         status: 'success', 
@@ -179,6 +208,16 @@ class PaymentController {
       const admin_id = req.user.id;
       
       await Payment.updateStatus(id, status, admin_id, catatan);
+      
+      // Emit realtime update
+      const io = req.app.get('io');
+      io.emit('payment-status-update', {
+        paymentId: id,
+        status,
+        catatan,
+        updatedBy: req.user.nama
+      });
+      
       res.json({ status: 'success', message: 'Status pembayaran berhasil diupdate' });
     } catch (error) {
       console.error('Error updating payment status:', error);

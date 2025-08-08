@@ -47,7 +47,7 @@ function AppContent() {
   };
   
   // Initialize Socket.IO
-  useSocket(user?.id || '', user?.jenis || '', handleDataUpdate);
+  useSocket();
 
   useEffect(() => {
     const handleResize = () => {
