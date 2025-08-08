@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
       exclude: ['lucide-react'],
     },
     server: {
+      host: '0.0.0.0',
       port: parseInt(env.FE_PORT) || 5174,
       proxy: {
         '/api': {

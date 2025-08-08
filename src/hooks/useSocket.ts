@@ -40,7 +40,8 @@ export const useSocket = () => {
     if (user && !socketRef.current) {
       console.log('🔌 Connecting to socket with user:', user);
       // Connect to socket server
-      socketRef.current = io('http://localhost:5170', {
+      const socketUrl = import.meta.env.VITE_API_URL || 'http://localhost:5170';
+      socketRef.current = io(socketUrl, {
         transports: ['websocket', 'polling'],
         autoConnect: true,
         forceNew: true

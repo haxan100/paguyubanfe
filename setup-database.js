@@ -1,10 +1,13 @@
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const dbConfig = {
-  host: 'localhost',
-  user: 'root',
-  password: '',
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
   multipleStatements: true
 };
 
@@ -12,21 +15,21 @@ async function setupDatabase() {
   try {
     // Connect without database first
     const connection = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: ''
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || ''
     });
     
     // Create database
-    await connection.execute('CREATE DATABASE IF NOT EXISTS paguyuban');
+    await connection.execute(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME || 'paguyuban'}`);
     await connection.end();
     
     // Connect to the database
     const dbConnection = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: '',
-      database: 'paguyuban'
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'paguyuban'
     });
     
     // Create users table
