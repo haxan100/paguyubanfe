@@ -39,15 +39,17 @@ class PostController {
       
       const result = await Post.create({ user_id, konten, foto });
       
-      // Emit notification to ketua
+      // Emit realtime notification
       const io = req.app.get('io');
-      console.log('📢 Emitting new-post notification:', req.user.nama);
-      io.emit('new-post', {
-        type: 'post',
-        message: 'Postingan baru dari warga',
-        user: req.user.nama,
-        timestamp: new Date()
-      });
+      const notificationData = {
+        nama: req.user.nama,
+        blok: req.user.blok,
+        konten: konten.substring(0, 50) + '...',
+        postId: result.insertId
+      };
+      
+      console.log('📢 Emitting post notification:', notificationData);
+      io.emit('post-notification', notificationData);
       
       res.json({ status: 'success', message: 'Post berhasil dibuat', id: result.insertId });
     } catch (error) {
@@ -72,6 +74,27 @@ class PostController {
       const user_id = req.user.id;
       
       const result = await Post.toggleLike(id, user_id);
+      
+      // Get post data for notification
+      const post = await Post.findById(id);
+      
+      // Emit realtime notification if liked (not unliked)
+      if (result.action === 'liked' && post && post.user_id !== user_id) {
+        const io = req.app.get('io');
+        const notificationData = {
+          nama: req.user.nama,
+          postId: id,
+          postOwner: post.user_id
+        };
+        
+        console.log('❤️ Emitting like notification:', notificationData);
+        io.to(`user-${post.user_id}`).emit('like-notification', notificationData);
+      }
+      
+      // Emit update to all users
+      const io = req.app.get('io');
+      io.emit('post-update', { postId: id, type: 'like' });
+      
       res.json({ status: 'success', data: result });
     } catch (error) {
       console.error('Error toggling like:', error);
@@ -97,6 +120,28 @@ class PostController {
       const user_id = req.user.id;
       
       await Post.addComment({ post_id: id, user_id, komentar });
+      
+      // Get post data for notification
+      const post = await Post.findById(id);
+      
+      // Emit realtime notification to post owner
+      if (post && post.user_id !== user_id) {
+        const io = req.app.get('io');
+        const notificationData = {
+          nama: req.user.nama,
+          comment: komentar,
+          postId: id,
+          postOwner: post.user_id
+        };
+        
+        console.log('💬 Emitting comment notification:', notificationData);
+        io.to(`user-${post.user_id}`).emit('comment-notification', notificationData);
+      }
+      
+      // Emit update to all users
+      const io = req.app.get('io');
+      io.emit('post-update', { postId: id, type: 'comment' });
+      
       res.json({ status: 'success', message: 'Komentar berhasil ditambahkan' });
     } catch (error) {
       console.error('Error adding comment:', error);

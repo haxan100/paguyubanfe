@@ -95,6 +95,36 @@ export const useSocket = () => {
         });
       });
 
+      // Listen for post notifications
+      socketRef.current.on('post-notification', (data) => {
+        console.log('📱 Post notification:', data);
+        showNotification({
+          title: '📱 Postingan Baru',
+          message: `${data.nama} membuat postingan baru`
+        });
+        window.dispatchEvent(new CustomEvent('post-update', { detail: data }));
+      });
+
+      // Listen for like notifications
+      socketRef.current.on('like-notification', (data) => {
+        console.log('❤️ Like notification:', data);
+        showNotification({
+          title: '❤️ Like Baru',
+          message: `${data.nama} menyukai postingan Anda`
+        });
+        window.dispatchEvent(new CustomEvent('post-update', { detail: data }));
+      });
+
+      // Listen for comment notifications
+      socketRef.current.on('comment-notification', (data) => {
+        console.log('💬 Comment notification:', data);
+        showNotification({
+          title: '💬 Komentar Baru',
+          message: `${data.nama} berkomentar: "${data.comment.substring(0, 50)}..."`
+        });
+        window.dispatchEvent(new CustomEvent('post-update', { detail: data }));
+      });
+
       socketRef.current.on('disconnect', () => {
         console.log('❌ Disconnected from socket server');
       });

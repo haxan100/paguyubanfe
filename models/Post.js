@@ -19,11 +19,11 @@ class Post {
     const connection = await mysql.createConnection(dbConfig);
     
     const [rows] = await connection.execute(`
-      SELECT p.*, u.nama, u.blok,
+      SELECT p.*, w.nama, w.blok,
         (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) as total_likes,
         (SELECT COUNT(*) FROM post_comments WHERE post_id = p.id) as total_comments
       FROM posts p 
-      JOIN users u ON p.user_id = u.id 
+      JOIN warga w ON p.user_id = w.id 
       ORDER BY p.tanggal_post DESC
     `);
     
@@ -47,7 +47,7 @@ class Post {
         [postId, userId]
       );
       await connection.end();
-      return { liked: false };
+      return { action: 'unliked', liked: false };
     } else {
       // Like
       await connection.execute(
@@ -55,7 +55,7 @@ class Post {
         [postId, userId]
       );
       await connection.end();
-      return { liked: true };
+      return { action: 'liked', liked: true };
     }
   }
 
@@ -63,9 +63,9 @@ class Post {
     const connection = await mysql.createConnection(dbConfig);
     
     const [rows] = await connection.execute(`
-      SELECT pl.*, u.nama 
+      SELECT pl.*, w.nama 
       FROM post_likes pl 
-      JOIN users u ON pl.user_id = u.id 
+      JOIN warga w ON pl.user_id = w.id 
       WHERE pl.post_id = ? 
       ORDER BY pl.tanggal_like DESC
     `, [postId]);
@@ -91,9 +91,9 @@ class Post {
     const connection = await mysql.createConnection(dbConfig);
     
     const [rows] = await connection.execute(`
-      SELECT pc.*, u.nama, u.blok 
+      SELECT pc.*, w.nama, w.blok 
       FROM post_comments pc 
-      JOIN users u ON pc.user_id = u.id 
+      JOIN warga w ON pc.user_id = w.id 
       WHERE pc.post_id = ? 
       ORDER BY pc.tanggal_komentar ASC
     `, [postId]);

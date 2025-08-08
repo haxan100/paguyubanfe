@@ -14,12 +14,14 @@ export const useRealtimeData = (fetchFunction: () => void, dependencies: any[] =
     };
 
     window.addEventListener('payment-update', handleUpdate);
+    window.addEventListener('post-update', handleUpdate);
     window.addEventListener('data-update', handleUpdate);
 
     // Remove auto refresh - use socket only
 
     return () => {
       window.removeEventListener('payment-update', handleUpdate);
+      window.removeEventListener('post-update', handleUpdate);
       window.removeEventListener('data-update', handleUpdate);
     };
   }, dependencies);

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Heart, MessageCircle, Send, Camera, X, Trash2, MoreHorizontal } from 'lucide-react';
+import { Heart, MessageCircle, Send, Camera, X, Trash2, RefreshCw } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { apiRequest } from '../utils/api';
+import { useRealtimeData } from '../hooks/useRealtimeData';
 
 interface Post {
   id: number;
@@ -32,6 +33,7 @@ export default function InfoWarga() {
   const [showComments, setShowComments] = useState<{[key: number]: boolean}>({});
   const [comments, setComments] = useState<{[key: number]: Comment[]}>({});
   const [newComment, setNewComment] = useState<{[key: number]: string}>({});
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     fetchPosts();
@@ -39,6 +41,7 @@ export default function InfoWarga() {
 
   const fetchPosts = async () => {
     try {
+      setIsRefreshing(true);
       const response = await apiRequest('/api/posts');
       const result = await response.json();
       if (result.status === 'success') {
@@ -46,8 +49,13 @@ export default function InfoWarga() {
       }
     } catch (error) {
       console.error('Error fetching posts:', error);
+    } finally {
+      setIsRefreshing(false);
     }
   };
+
+  // Use realtime data hook
+  const { forceRefresh } = useRealtimeData(fetchPosts, []);
 
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,7 +197,17 @@ export default function InfoWarga() {
 
   return (
     <div className="max-w-2xl mx-auto p-4 space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Info Warga</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Info Warga</h2>
+        <button
+          onClick={forceRefresh}
+          disabled={isRefreshing}
+          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        >
+          <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
+          <span>Refresh</span>
+        </button>
+      </div>
       
       {/* Create Post */}
       <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
