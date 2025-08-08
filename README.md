@@ -50,25 +50,41 @@ cp .env.local.example .env.local
 
 ## 🚀 Menjalankan Aplikasi
 
-### Development (Butuh 2 Terminal)
+### Development
 
-**Terminal 1 - Backend Server:**
+**Opsi 1 - Satu Terminal (Recommended):**
+```bash
+npm run dev:all
+```
+*Backend (port 5170) + Frontend (port 5174) jalan bersamaan*
+
+**Opsi 2 - Dua Terminal Terpisah:**
+
+*Terminal 1 - Backend Server:*
 ```bash
 npm run server
 ```
-*Server akan jalan di http://localhost:5170*
 
-**Terminal 2 - Frontend Vite:**
+*Terminal 2 - Frontend Vite:*
 ```bash
 npm run dev
 ```
-*Frontend akan jalan di http://localhost:5174*
 
 ### Production
+
+**Opsi 1 - Satu Terminal (Recommended):**
+```bash
+npm run build
+npm run prod
+```
+*Build + jalankan backend & frontend preview bersamaan*
+
+**Opsi 2 - Manual:**
 ```bash
 npm run build
 npm start
 ```
+*Build + jalankan backend saja (serve static files)*
 
 ### Kill Process (jika port stuck)
 ```bash
@@ -97,12 +113,19 @@ paguyubanfe/
 
 ## 🔧 Scripts
 
-- `npm run dev` - Menjalankan development server
-- `npm run build` - Build untuk production
+### Development
+- `npm run dev` - Frontend Vite development server
+- `npm run server` - Backend Express server
+- `npm run dev:all` - **Backend + Frontend bersamaan (1 terminal)**
+
+### Production
+- `npm run build` - Build frontend untuk production
 - `npm run preview` - Preview build production
+- `npm run prod` - **Backend + Frontend preview bersamaan (1 terminal)**
+- `npm start` - Build + jalankan backend (serve static)
+
+### Utilities
 - `npm run lint` - Linting kode
-- `npm run server` - Menjalankan backend server
-- `npm start` - Build dan jalankan production
 
 ## 📝 API Endpoints
 
@@ -131,20 +154,33 @@ Untuk testing, gunakan kredensial berikut:
 ### Proxy Error (ECONNREFUSED)
 Jika mendapat error proxy saat development:
 
-1. **Pastikan backend server jalan terlebih dahulu di Terminal 1:**
+**Solusi Mudah:**
+```bash
+npm run dev:all
+```
+
+**Atau Manual:**
+1. **Pastikan backend server jalan terlebih dahulu:**
 ```bash
 npm run server
 ```
 *Tunggu sampai muncul pesan "Server running on port 5170"*
 
-2. **Baru jalankan frontend di Terminal 2:**
+2. **Baru jalankan frontend di terminal terpisah:**
 ```bash
 npm run dev
 ```
 
-3. **Akses aplikasi di browser:**
-   - Frontend: http://localhost:5174
-   - Backend API: http://localhost:5170
+**Akses aplikasi:**
+- Frontend: http://localhost:5174
+- Backend API: http://localhost:5170
+
+### Konfigurasi Port
+Ubah port di file `.env`:
+```env
+BE_PORT=5170  # Backend port
+FE_PORT=5174  # Frontend port
+```
 
 ### Update Browserslist
 Jika ada warning browserslist outdated:
