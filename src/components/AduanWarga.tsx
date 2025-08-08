@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, MessageCircle, Send, X } from 'lucide-react';
+import { Trash2, MessageCircle, Send, RefreshCw } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { apiRequest } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useRealtimeData } from '../hooks/useRealtimeData';
 
 interface Aduan {
   id: number;
@@ -12,6 +13,8 @@ interface Aduan {
   deskripsi: string;
   foto: string | null;
   status: string;
+  jawaban: string | null;
+  nama_admin: string | null;
   nama_user: string;
   blok: string;
   tanggal_aduan: string;
@@ -32,6 +35,7 @@ export default function AduanWarga() {
   const [showComments, setShowComments] = useState<{[key: number]: boolean}>({});
   const [comments, setComments] = useState<{[key: number]: Comment[]}>({});
   const [newComment, setNewComment] = useState<{[key: number]: string}>({});
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     fetchAduan();
@@ -39,6 +43,7 @@ export default function AduanWarga() {
 
   const fetchAduan = async () => {
     try {
+      setIsRefreshing(true);
       const response = await apiRequest('/api/aduan');
       const result = await response.json();
       if (result.status === 'success') {
@@ -54,8 +59,13 @@ export default function AduanWarga() {
       }
     } catch (error) {
       console.error('Error fetching aduan:', error);
+    } finally {
+      setIsRefreshing(false);
     }
   };
+
+  // Use realtime data hook
+  const { forceRefresh } = useRealtimeData(fetchAduan, []);
 
   const handleDelete = async (id: number) => {
     const result = await Swal.fire({
@@ -129,6 +139,50 @@ export default function AduanWarga() {
     }
   };
 
+  const handleStatusChange = async (aduanId: number, newStatus: string) => {
+    try {
+      const { value: jawaban } = await Swal.fire({
+        title: `Ubah Status ke ${newStatus.toUpperCase()}`,
+        input: 'textarea',
+        inputLabel: 'Jawaban/Catatan (opsional)',
+        inputPlaceholder: 'Masukkan jawaban atau catatan...',
+        showCancelButton: true,
+        confirmButtonText: 'Ubah Status',
+        cancelButtonText: 'Batal'
+      });
+
+      if (jawaban !== undefined) {
+        const response = await apiRequest(`/api/aduan/${aduanId}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            status: newStatus, 
+            jawaban: jawaban || null,
+            admin_id: user?.id 
+          })
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+          fetchAduan();
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Status aduan berhasil diubah',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: 'Gagal mengubah status aduan'
+      });
+    }
+  };
+
   const canDelete = (item: Aduan) => {
     if (user?.jenis === 'ketua') return true;
     if (user?.jenis === 'koordinator_perblok') {
@@ -152,9 +206,19 @@ export default function AduanWarga() {
 
   return (
     <div className="space-y-6">
-      <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900`}>
-        {user?.jenis === 'koordinator_perblok' ? `Aduan Blok ${user.blok?.charAt(0)}` : 'Kelola Aduan Warga'}
-      </h1>
+      <div className="flex justify-between items-center">
+        <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900`}>
+          {user?.jenis === 'koordinator_perblok' ? `Aduan Blok ${user.blok?.charAt(0)}` : 'Kelola Aduan Warga'}
+        </h1>
+        <button
+          onClick={forceRefresh}
+          disabled={isRefreshing}
+          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        >
+          <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
+          <span>Refresh</span>
+        </button>
+      </div>
       
       <div className="space-y-4">
         {aduan.map((item) => (
@@ -167,14 +231,32 @@ export default function AduanWarga() {
                 </p>
               </div>
               <div className="flex items-center space-x-2">
-                <span className={`px-2 py-1 rounded text-xs ${
-                  item.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                  item.status === 'proses' ? 'bg-blue-100 text-blue-800' :
-                  item.status === 'selesai' ? 'bg-green-100 text-green-800' :
-                  'bg-red-100 text-red-800'
-                }`}>
-                  {item.status}
-                </span>
+                {(user?.jenis === 'admin' || user?.jenis === 'ketua') ? (
+                  <select
+                    value={item.status}
+                    onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                    className={`px-2 py-1 rounded text-xs border-0 cursor-pointer ${
+                      item.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      item.status === 'proses' ? 'bg-blue-100 text-blue-800' :
+                      item.status === 'selesai' ? 'bg-green-100 text-green-800' :
+                      'bg-red-100 text-red-800'
+                    }`}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="proses">Proses</option>
+                    <option value="selesai">Selesai</option>
+                    <option value="ditolak">Ditolak</option>
+                  </select>
+                ) : (
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    item.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                    item.status === 'proses' ? 'bg-blue-100 text-blue-800' :
+                    item.status === 'selesai' ? 'bg-green-100 text-green-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    {item.status}
+                  </span>
+                )}
                 {canDelete(item) && (
                   <button
                     onClick={() => handleDelete(item.id)}
@@ -199,6 +281,17 @@ export default function AduanWarga() {
                 className={`object-cover rounded cursor-pointer mb-3 ${isMobile ? 'w-24 h-18' : 'w-32 h-24'}`}
                 onClick={() => window.open(`/assets/uploads/${item.foto}`, '_blank')}
               />
+            )}
+
+            {/* Admin Response */}
+            {item.jawaban && (
+              <div className="bg-blue-50 p-3 rounded-lg mb-3">
+                <h4 className="font-semibold text-blue-800 mb-1">Jawaban Admin:</h4>
+                <p className="text-blue-700 text-sm">{item.jawaban}</p>
+                {item.nama_admin && (
+                  <p className="text-xs text-blue-600 mt-1">- {item.nama_admin}</p>
+                )}
+              </div>
             )}
 
             {/* Comments Section */}

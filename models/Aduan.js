@@ -19,9 +19,9 @@ class Aduan {
     const connection = await mysql.createConnection(dbConfig);
     
     const [rows] = await connection.execute(`
-      SELECT a.*, u.nama as nama_user, u.blok, admin.nama as nama_admin
+      SELECT a.*, w.nama as nama_user, w.blok, admin.nama as nama_admin
       FROM aduan a 
-      JOIN users u ON a.user_id = u.id 
+      JOIN warga w ON a.user_id = w.id 
       LEFT JOIN users admin ON a.admin_id = admin.id
       ORDER BY a.tanggal_aduan DESC
     `);
@@ -104,9 +104,22 @@ class Aduan {
     const connection = await mysql.createConnection(dbConfig);
     
     const [rows] = await connection.execute(`
-      SELECT ac.*, u.nama, u.jenis, u.blok 
+      SELECT ac.*, 
+        CASE 
+          WHEN ac.user_id IN (SELECT id FROM warga) THEN w.nama
+          ELSE u.nama 
+        END as nama,
+        CASE 
+          WHEN ac.user_id IN (SELECT id FROM warga) THEN 'warga'
+          ELSE u.jenis 
+        END as jenis,
+        CASE 
+          WHEN ac.user_id IN (SELECT id FROM warga) THEN w.blok
+          ELSE u.blok 
+        END as blok
       FROM aduan_comments ac 
-      JOIN users u ON ac.user_id = u.id 
+      LEFT JOIN warga w ON ac.user_id = w.id 
+      LEFT JOIN users u ON ac.user_id = u.id 
       WHERE ac.aduan_id = ? 
       ORDER BY ac.tanggal_komentar ASC
     `, [aduanId]);

@@ -93,6 +93,40 @@ export const useSocket = () => {
           title: '📝 Aduan Baru',
           message: `${data.nama} dari Blok ${data.blok} mengajukan aduan: ${data.judul}`
         });
+        window.dispatchEvent(new CustomEvent('aduan-update', { detail: data }));
+      });
+
+      // Listen for aduan updates
+      socketRef.current.on('aduan-update', (data) => {
+        console.log('🔄 Aduan update:', data);
+        window.dispatchEvent(new CustomEvent('aduan-update', { detail: data }));
+      });
+
+      // Listen for aduan comment notifications
+      socketRef.current.on('aduan-comment-notification', (data) => {
+        console.log('💬 Aduan comment notification:', data);
+        showNotification({
+          title: '💬 Komentar Aduan',
+          message: `${data.nama} (${data.jenis}) berkomentar di aduan "${data.aduanJudul}"`
+        });
+        window.dispatchEvent(new CustomEvent('aduan-update', { detail: data }));
+      });
+
+      // Listen for aduan status notifications
+      socketRef.current.on('aduan-status-notification', (data) => {
+        console.log('🔄 Aduan status notification:', data);
+        const statusText = {
+          'pending': 'Menunggu',
+          'proses': 'Diproses', 
+          'selesai': 'Selesai',
+          'ditolak': 'Ditolak'
+        }[data.status] || data.status;
+        
+        showNotification({
+          title: '🔄 Status Aduan Diubah',
+          message: `${data.nama} mengubah status aduan "${data.aduanJudul}" menjadi ${statusText}`
+        });
+        window.dispatchEvent(new CustomEvent('aduan-update', { detail: data }));
       });
 
       // Listen for post notifications

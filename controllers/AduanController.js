@@ -49,15 +49,25 @@ class AduanController {
         foto
       });
       
-      // Emit notification to ketua
+      // Emit realtime notification
       const io = req.app.get('io');
-      console.log('🚨 Emitting new-aduan notification:', req.user.nama);
-      io.emit('new-aduan', {
-        type: 'aduan',
-        message: 'Aduan baru dari warga',
-        user: req.user.nama,
-        timestamp: new Date()
-      });
+      const notificationData = {
+        nama: req.user.nama,
+        blok: req.user.blok,
+        judul: judul,
+        kategori: kategori,
+        aduanId: result.insertId
+      };
+      
+      console.log('📝 Emitting complaint notification:', notificationData);
+      
+      // Send to ketua, admin, and koordinator
+      io.to('ketua').emit('complaint-notification', notificationData);
+      io.to('admin').emit('complaint-notification', notificationData);
+      io.to('koordinator').emit('complaint-notification', notificationData);
+      
+      // Emit general update
+      io.emit('aduan-update', { type: 'new', aduanId: result.insertId });
       
       res.json({ status: 'success', message: 'Aduan berhasil dibuat', id: result.insertId });
     } catch (error) {
@@ -116,6 +126,29 @@ class AduanController {
       const foto_jawaban = req.file ? req.file.filename : null;
       
       await Aduan.updateStatus(id, { status, jawaban, foto_jawaban, admin_id });
+      
+      // Get aduan data for notification
+      const aduan = await Aduan.findById(id);
+      
+      // Emit realtime update
+      const io = req.app.get('io');
+      io.emit('aduan-update', { type: 'status', aduanId: id, status });
+      
+      // Send notification to aduan owner
+      if (aduan) {
+        const notificationData = {
+          nama: req.user.nama,
+          jenis: req.user.jenis,
+          status: status,
+          jawaban: jawaban,
+          aduanId: id,
+          aduanJudul: aduan.judul
+        };
+        
+        console.log('🔄 Emitting aduan status notification:', notificationData);
+        io.to(`user-${aduan.user_id}`).emit('aduan-status-notification', notificationData);
+      }
+      
       res.json({ status: 'success', message: 'Status aduan berhasil diupdate' });
     } catch (error) {
       console.error('Error updating status:', error);
@@ -130,6 +163,28 @@ class AduanController {
       const user_id = req.user.id;
       
       await Aduan.addComment({ aduan_id: id, user_id, komentar });
+      
+      // Get aduan data for notification
+      const aduan = await Aduan.findById(id);
+      
+      // Emit realtime update
+      const io = req.app.get('io');
+      io.emit('aduan-update', { type: 'comment', aduanId: id });
+      
+      // Send notification to aduan owner if comment is from admin/ketua
+      if (aduan && aduan.user_id !== user_id) {
+        const notificationData = {
+          nama: req.user.nama,
+          jenis: req.user.jenis,
+          comment: komentar,
+          aduanId: id,
+          aduanJudul: aduan.judul
+        };
+        
+        console.log('💬 Emitting aduan comment notification:', notificationData);
+        io.to(`user-${aduan.user_id}`).emit('aduan-comment-notification', notificationData);
+      }
+      
       res.json({ status: 'success', message: 'Komentar berhasil ditambahkan' });
     } catch (error) {
       console.error('Error adding comment:', error);
